@@ -1,0 +1,11 @@
+# most common virtual environment names thought of so far
+env
+venv
+
+# automatically generated files
+*.pyc
+db.sqlite3
+
+# PyCharm settings
+.idea
+
