@@ -33,4 +33,5 @@ window:
     > python manage.py runserver
 
 Visiting localhost:8000 in a browser should return the home page, currently
-the 'It worked' page that comes with a brand new django site.
+the root page of the rest api.  As soon as a designer mocs us up a home page,
+we'll put that in and move the rest api to localhost:8000/rest.
