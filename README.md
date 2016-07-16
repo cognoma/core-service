@@ -14,9 +14,6 @@ and will contain the following:
 * a Rest API for other components of the system to use to read and write data
   found on the django site.
 
-* a task handler, implemented using celery, to allow users to start long-running
-  tasks without being blocked while waiting for them to finish
-
 The site is currently only ready to be run on a developer's machine.  As it
 becomes ready for staging, there will need to be instructions added for the
 various cloud instances running.  For now, as a developer, one can get it
@@ -32,5 +29,6 @@ window:
     > python manage.py createsuperuser
     > python manage.py runserver
 
-Visiting localhost:8000 in a browser should return the home page, currently
-the 'It worked' page that comes with a brand new django site.
+Visiting localhost:8000/api in a browser should return the root page of the
+rest api.  Until a designer mocs us up a home page, localhost:8000 will bring
+up an error page.
