@@ -27,7 +27,7 @@ A classifier represents a classifer built using machine learning in Cognoma.
 
 ### User (/users)
 
-A classifier represents a classifer built using machine learning in Cognoma.
+A user of the Cognoma system.
 
 
 | Field        | Type           | Description | Read-Only
