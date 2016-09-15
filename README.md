@@ -17,17 +17,22 @@ and will contain the following:
 The site is currently only ready to be run on a developer's machine.  As it
 becomes ready for staging, there will need to be instructions added for the
 various cloud instances running.  For now, as a developer, one can get it
-running on their machine with the following instructions in a command
-window:
+running on their machine with the following instructions in a command window
+(make sure to fork [this repository on
+GitHub](https://github.com/cognoma/django-cognoma "cognoma/django-cognoma on
+GitHub") first):
 
-    > git clone git@github.com:cognoma/django-cognoma.git
-    > cd django-cognoma
-    > virtualenv env
-    > source env/bin/activate
-    > pip install -r requirements.txt
-    > python manage.py migrate
-    > python manage.py createsuperuser
-    > python manage.py runserver
+```sh
+USERNAME=your_github_handle # Change to your GitHub Handle
+git clone git@github.com:${USERNAME}/django-cognoma.git
+cd django-cognoma
+virtualenv env
+source env/bin/activate
+pip install --requirement requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
 
 Visiting localhost:8000/api in a browser should return the root page of the
 rest api.  Until a designer mocs us up a home page, localhost:8000 will bring
