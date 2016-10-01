@@ -15,7 +15,7 @@ class User(models.Model):
         db_table = "users"
 
     # id added by default
-    random_slugs = postgresfields.ArrayField(models.CharField(max_length=16))
+    random_slugs = postgresfields.ArrayField(models.CharField(max_length=25))
     name = models.CharField(null=True, max_length=255, blank=True)
     email = models.CharField(null=True, max_length=2048, blank=False)
     last_login = models.DateTimeField()
@@ -40,7 +40,7 @@ class Sample(models.Model):
 
 class Mutation(models.Model):
     class Meta:
-        db_table = "samples"
+        db_table = "mutations"
 
     gene = models.ForeignKey(Gene)
     sample = models.ForeignKey(Sample)
