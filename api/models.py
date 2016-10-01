@@ -5,6 +5,11 @@ from django.contrib.postgres import fields as postgresfields
 
 from genes.models import Gene
 
+GENDER_CHOICES = (
+    ("male", "Male"),
+    ("female", "Female")
+)
+
 class User(models.Model):
     class Meta:
         db_table = "users"
@@ -17,22 +22,37 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class Algorithm(models.Model):
+class Disease(models.Model):
     class Meta:
-        db_table = "algorithms"
+        db_table = "diseases"
 
-    name = models.CharField(primary_key=True, max_length=255)
-    title = models.CharField(max_length=255, null=False, blank=False)
-    description = models.CharField(max_length=2048, null=False, blank=False)
+    acronym = models.CharField(primary_key=True, max_length=255)
+    name = models.CharField(max_length=255, null=False, blank=False)
+
+class Sample(models.Model):
+    class Meta:
+        db_table = "samples"
+
+    sample_id = models.CharField(primary_key=True, max_length=255) # ID assigned by TCGA
+    mutations = models.ManyToManyField(Gene, through='Mutation', through_fields=('sample', 'gene'))
+    gender =  models.CharField(choices=GENDER_CHOICES, max_length=6)
+    age_diagnosed = models.IntegerField(null=False, blank=False)
+
+class Mutation(models.Model):
+    class Meta:
+        db_table = "samples"
+
+    gene = models.ForeignKey(Gene)
+    sample = models.ForeignKey(Sample)
+    status = models.BooleanField()
 
 class Classifier(models.Model):
     class Meta:
         db_table = "classifiers"
 
     # id added by default
-    algorithm = models.ForeignKey(Algorithm, db_column="algorithm", null=False, blank=False)
-    expression_genes = models.ForeignKey(Gene)
-    # tissues = models.ForeignKey(Tissue)
+    genes = models.ForeignKey(Gene)
+    diseases = models.ForeignKey(Disease)
     user = models.ForeignKey(User)
     task_id = models.IntegerField(null=False, blank=False)
     results = postgresfields.JSONField(null=True)
