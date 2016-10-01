@@ -3,7 +3,7 @@ import string
 import random
 
 from rest_framework import serializers
-from api.models import User, Classifier, Disease
+from api.models import User, Classifier, Disease, Sample, Mutation
 from genes.models import Gene, Organism
 
 class UserSerializer(serializers.Serializer):
@@ -72,3 +72,20 @@ class GeneSerializer(serializers.Serializer):
     organism = OrganismSerializer()
     aliases = serializers.CharField()
     obsolete = serializers.BooleanField()
+
+class DiseaseSerializer(serializers.Serializer):
+    acronym = serializers.CharField()
+    name = serializers.CharField()
+
+class MutationSerializer(serializers.Serializer):
+    gene_id = serializers.PrimaryKeyRelatedField(queryset=Gene.objects.all())
+    sample_id = serializers.PrimaryKeyRelatedField(queryset=Sample.objects.all())
+    status = serializers.BooleanField()
+
+class SampleSerializer(serializers.Serializer):
+    sample_id = serializers.CharField()
+    disease = DiseaseSerializer(many=True)
+    mutations = MutationSerializer(many=True)
+    gender = serializers.CharField()
+    age_diagnosed = serializers.IntegerField()
+
