@@ -1,11 +1,10 @@
 from rest_framework.test import APITestCase, APIClient
 
 class UserTests(APITestCase):
-    def setUp(self):
-        self.client = APIClient()
-
     def test_create_user(self):
-        response = self.client.post('/users', {}, format='json')
+        client = APIClient()
+
+        response = client.post('/users', {}, format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['id'], 1)
@@ -18,11 +17,17 @@ class UserTests(APITestCase):
                                                       'random_slugs'])
 
     def test_update_user(self):
-      create_response = self.client.post('/users', {}, format='json')
+      client = APIClient()
+
+      create_response = client.post('/users', {}, format='json')
 
       self.assertEqual(create_response.status_code, 201)
 
-      update_response = self.client.put('/users/' + str(create_response.data['id']),
+      token = 'Bearer ' + create_response.data['random_slugs'][0]
+
+      client.credentials(HTTP_AUTHORIZATION=token)
+
+      update_response = client.put('/users/' + str(create_response.data['id']),
                                  {'email': 'foo@yahoo.com'},
                                  format='json')
 

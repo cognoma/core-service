@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import string
 import random
 
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 from api.models import User, Classifier, Disease, Sample, Mutation
 from genes.models import Gene, Organism
 
@@ -24,6 +24,14 @@ class UserSerializer(serializers.Serializer):
         return User.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
+        user = self.context['request'].user
+
+        if not user:
+            raise exceptions.NotAuthenticated()
+
+        if user.id != instance.id:
+            raise exceptions.PermissionDenied()
+
         instance.name = validated_data.get('name', instance.name)
         instance.email = validated_data.get('email', instance.email)
         instance.save()
@@ -49,9 +57,24 @@ class ClassifierSerializer(serializers.Serializer):
     updated_at = serializers.DateTimeField(read_only=True, format='iso-8601')
 
     def create(self, validated_data):
+        user = self.context['request'].user
+
+        if not user:
+            raise exceptions.NotAuthenticated()
+
+        validated_data['user'] = user.id # force loggedin user id
+
         return Classifier.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
+        user = self.context['request'].user
+
+        if not user:
+            raise exceptions.NotAuthenticated()
+
+        if user.id != instance.user:
+            raise exceptions.PermissionDenied()
+
         instance.genes = validated_data.get('genes', instance.genes)
         instance.diseases = validated_data.get('diseases', instance.diseases)
         instance.results = validated_data.get('results', instance.results)

@@ -42,7 +42,10 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'UNAUTHENTICATED_USER': None,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'api.auth.CognomaAuthentication',
+    )
 }
 
 MIDDLEWARE_CLASSES = [
