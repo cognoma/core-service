@@ -73,10 +73,6 @@ class UserTests(APITestCase):
                                                            'previous',
                                                            'results'])
         self.assertEqual(len(list_response.data['results']), 2)
-        self.assertEqual(list(list_response.data.keys()), ['count',
-                                                           'next',
-                                                           'previous',
-                                                           'results'])
         self.assertEqual(list(list_response.data['results'][0].keys()), self.user_get_update_keys)
         self.assertEqual(list(list_response.data['results'][1].keys()), self.user_get_update_keys)
 

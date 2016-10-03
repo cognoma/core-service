@@ -46,41 +46,6 @@ class UserSerializer(serializers.Serializer):
 
         return output
 
-class ClassifierSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    genes = serializers.PrimaryKeyRelatedField(required=True, many=True, queryset=Gene.objects.all())
-    diseases = serializers.PrimaryKeyRelatedField(required=False, many=True, queryset=Disease.objects.all())
-    user = serializers.PrimaryKeyRelatedField(required=False, queryset=User.objects.all())
-    task_id = serializers.IntegerField(read_only=True)
-    results = serializers.JSONField(required=False)
-    created_at = serializers.DateTimeField(read_only=True, format='iso-8601')
-    updated_at = serializers.DateTimeField(read_only=True, format='iso-8601')
-
-    def create(self, validated_data):
-        user = self.context['request'].user
-
-        if not user:
-            raise exceptions.NotAuthenticated()
-
-        validated_data['user'] = user.id # force loggedin user id
-
-        return Classifier.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        user = self.context['request'].user
-
-        if not user:
-            raise exceptions.NotAuthenticated()
-
-        if user.id != instance.user:
-            raise exceptions.PermissionDenied()
-
-        instance.genes = validated_data.get('genes', instance.genes)
-        instance.diseases = validated_data.get('diseases', instance.diseases)
-        instance.results = validated_data.get('results', instance.results)
-        instance.save()
-        return instance
-
 class OrganismSerializer(serializers.Serializer):
     taxonomy_id = serializers.IntegerField()
     common_name = serializers.CharField()
@@ -99,6 +64,61 @@ class GeneSerializer(serializers.Serializer):
 class DiseaseSerializer(serializers.Serializer):
     acronym = serializers.CharField()
     name = serializers.CharField()
+
+class ClassifierSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    genes = serializers.PrimaryKeyRelatedField(required=True, many=True, queryset=Gene.objects.all())
+    diseases = serializers.PrimaryKeyRelatedField(required=False, many=True, queryset=Disease.objects.all())
+    # genes = GeneSerializer(many=True)
+    # diseases = DiseaseSerializer(many=True)
+    user = serializers.PrimaryKeyRelatedField(required=False, queryset=User.objects.all())
+    task_id = serializers.IntegerField(read_only=True)
+    results = serializers.JSONField(required=False, allow_null=True)
+    created_at = serializers.DateTimeField(read_only=True, format='iso-8601')
+    updated_at = serializers.DateTimeField(read_only=True, format='iso-8601')
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+
+        if not user:
+            raise exceptions.NotAuthenticated()
+
+        print(validated_data)
+
+        classifier_input = {
+            'user': user, # force loggedin user id
+            'task_id': 234 # TODO: create task
+        }
+
+        if 'results' in validated_data:
+            classifier_input['results'] = validated_data['results']
+
+        classifier =  Classifier.objects.create(**classifier_input)
+
+        if 'genes' in validated_data:
+            for gene in validated_data['genes']:
+                classifier.genes.add(gene)
+
+        if 'diseases' in validated_data:
+            for disease in validated_data['diseases']:
+                classifier.diseases.add(disease)
+
+        return classifier
+
+    def update(self, instance, validated_data):
+        user = self.context['request'].user
+
+        if not user:
+            raise exceptions.NotAuthenticated()
+
+        if user.id != instance.user.id:
+            raise exceptions.PermissionDenied()
+
+        instance.genes = validated_data.get('genes', instance.genes)
+        instance.diseases = validated_data.get('diseases', instance.diseases)
+        instance.results = validated_data.get('results', instance.results)
+        instance.save()
+        return instance
 
 class MutationSerializer(serializers.Serializer):
     gene_id = serializers.PrimaryKeyRelatedField(queryset=Gene.objects.all())

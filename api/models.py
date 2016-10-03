@@ -53,8 +53,8 @@ class Classifier(models.Model):
         db_table = "classifiers"
 
     # id added by default
-    genes = models.ForeignKey(Gene)
-    diseases = models.ForeignKey(Disease)
+    genes = models.ManyToManyField(Gene)
+    diseases = models.ManyToManyField(Disease)
     user = models.ForeignKey(User)
     task_id = models.IntegerField(null=False, blank=False)
     results = postgresfields.JSONField(null=True)
