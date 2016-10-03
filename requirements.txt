@@ -5,4 +5,5 @@ django-genes==0.3
 django-haystack==2.5.0
 django-organisms==0.3
 djangorestframework==3.4.0
+djangorestframework-expander==0.2.1
 psycopg2==2.6.2

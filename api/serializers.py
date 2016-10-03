@@ -3,6 +3,8 @@ import string
 import random
 
 from rest_framework import serializers, exceptions
+from expander import ExpanderSerializerMixin
+
 from api.models import User, Classifier, Disease, Sample, Mutation
 from genes.models import Gene, Organism
 
@@ -65,12 +67,17 @@ class DiseaseSerializer(serializers.Serializer):
     acronym = serializers.CharField()
     name = serializers.CharField()
 
-class ClassifierSerializer(serializers.Serializer):
+class ClassifierSerializer(ExpanderSerializerMixin, serializers.Serializer):
+    class Meta:
+        expandable_fields = {
+            'genes': (GeneSerializer, (), {'many': True}),
+            'diseases': (DiseaseSerializer, (), {'many': True}),
+            'user': UserSerializer
+        }
+
     id = serializers.IntegerField(read_only=True)
     genes = serializers.PrimaryKeyRelatedField(required=True, many=True, queryset=Gene.objects.all())
     diseases = serializers.PrimaryKeyRelatedField(required=False, many=True, queryset=Disease.objects.all())
-    # genes = GeneSerializer(many=True)
-    # diseases = DiseaseSerializer(many=True)
     user = serializers.PrimaryKeyRelatedField(required=False, queryset=User.objects.all())
     task_id = serializers.IntegerField(read_only=True)
     results = serializers.JSONField(required=False, allow_null=True)
