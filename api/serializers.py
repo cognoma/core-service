@@ -119,6 +119,7 @@ class MutationSerializer(ExpanderSerializerMixin, serializers.Serializer):
             'gene': GeneSerializer,
         }
 
+    id = serializers.IntegerField()
     gene = serializers.PrimaryKeyRelatedField(queryset=Gene.objects.all())
     sample = serializers.PrimaryKeyRelatedField(queryset=Sample.objects.all())
     status = serializers.BooleanField()
