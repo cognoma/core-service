@@ -41,12 +41,19 @@ class UserSerializer(serializers.Serializer):
         return output
 
 class OrganismSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     taxonomy_id = serializers.IntegerField()
     common_name = serializers.CharField()
     scientific_name = serializers.CharField()
     slug = serializers.CharField()
 
-class GeneSerializer(serializers.Serializer):
+class GeneSerializer(ExpanderSerializerMixin, serializers.Serializer):
+    class Meta:
+        expandable_fields = {
+            'organism': OrganismSerializer
+        }
+
+    id = serializers.IntegerField()
     entrezid = serializers.IntegerField()
     systematic_name = serializers.CharField()
     standard_name = serializers.CharField()
@@ -106,15 +113,26 @@ class ClassifierSerializer(ExpanderSerializerMixin, serializers.Serializer):
         instance.save()
         return instance
 
-class MutationSerializer(serializers.Serializer):
-    gene_id = serializers.PrimaryKeyRelatedField(queryset=Gene.objects.all())
-    sample_id = serializers.PrimaryKeyRelatedField(queryset=Sample.objects.all())
+class MutationSerializer(ExpanderSerializerMixin, serializers.Serializer):
+    class Meta:
+        expandable_fields = {
+            'gene': GeneSerializer,
+        }
+
+    gene = serializers.PrimaryKeyRelatedField(queryset=Gene.objects.all())
+    sample = serializers.PrimaryKeyRelatedField(queryset=Sample.objects.all())
     status = serializers.BooleanField()
 
-class SampleSerializer(serializers.Serializer):
+class SampleSerializer(ExpanderSerializerMixin, serializers.Serializer):
+    class Meta:
+        expandable_fields = {
+            'disease': DiseaseSerializer,
+            'mutations': (MutationSerializer, (), {'many': True})
+        }
+
     sample_id = serializers.CharField()
-    disease = DiseaseSerializer(many=True)
-    mutations = MutationSerializer(many=True)
+    disease = serializers.PrimaryKeyRelatedField(queryset=Disease.objects.all())
+    mutations = serializers.PrimaryKeyRelatedField(many=True, queryset=Mutation.objects.all())
     gender = serializers.CharField()
     age_diagnosed = serializers.IntegerField()
 

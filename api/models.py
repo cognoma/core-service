@@ -35,7 +35,6 @@ class Sample(models.Model):
 
     sample_id = models.CharField(primary_key=True, max_length=255) # ID assigned by TCGA
     disease = models.ForeignKey(Disease)
-    mutations = models.ManyToManyField(Gene, through='Mutation', through_fields=('sample', 'gene'))
     gender =  models.CharField(choices=GENDER_CHOICES, max_length=6)
     age_diagnosed = models.IntegerField(null=False, blank=False)
 
@@ -45,7 +44,7 @@ class Mutation(models.Model):
 
     # id added by default
     gene = models.ForeignKey(Gene)
-    sample = models.ForeignKey(Sample)
+    sample = models.ForeignKey(Sample, related_name='mutations')
     status = models.BooleanField()
 
 class Classifier(models.Model):

@@ -75,12 +75,12 @@ class GeneList(generics.ListAPIView):
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = GeneFilter
     ordering_fields = ('entrezid', 'systematic_name', 'standard_name')
-    ordering = ('entrezid',)
+    ordering = ('id',)
 
 class GeneRetrieve(generics.RetrieveAPIView):
     queryset = Gene.objects.all()
     serializer_class = serializers.GeneSerializer
-    lookup_field = 'entrezid'
+    lookup_field = 'id'
 
 # Organisms
 
@@ -95,12 +95,12 @@ class OrganismList(generics.ListAPIView):
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = OrganismFilter
     ordering_fields = ('taxonomy_id', 'common_name', 'scientific_name')
-    ordering = ('taxonomy_id',)
+    ordering = ('id',)
 
 class OrganismRetrieve(generics.RetrieveAPIView):
     queryset = Organism.objects.all()
     serializer_class = serializers.OrganismSerializer
-    lookup_field = 'taxonomy_id'
+    lookup_field = 'id'
 
 # Diseases
 
