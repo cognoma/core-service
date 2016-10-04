@@ -156,3 +156,39 @@ class ClassifierTests(APITestCase):
         self.assertEqual(get_classifier_response.status_code, 200)
         self.assertEqual(list(get_classifier_response.data.keys()), self.classifier_keys)
 
+    def test_expansion(self):
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=self.token)
+
+        classifier1_response = client.post('/classifiers', self.classifier_post_data, format='json')
+        classifier2_response = client.post('/classifiers', self.classifier_post_data, format='json')
+
+        self.assertEqual(classifier1_response.status_code, 201)
+        self.assertEqual(classifier2_response.status_code, 201)
+
+        client = APIClient() # clear token
+
+        list_response = client.get('/classifiers?expand=user,genes,diseases')
+
+        self.assertEqual(list_response.status_code, 200)
+        self.assertEqual(list(list_response.data.keys()), ['count',
+                                                           'next',
+                                                           'previous',
+                                                           'results'])
+        self.assertEqual(len(list_response.data['results']), 2)
+        self.assertEqual(list(list_response.data['results'][0].keys()), self.classifier_keys)
+        self.assertEqual(list(list_response.data['results'][1].keys()), self.classifier_keys)
+
+        self.assertTrue(isinstance(list_response.data['results'][0]['user'], dict))
+        self.assertTrue(isinstance(list_response.data['results'][1]['user'], dict))
+
+        self.assertTrue(isinstance(list_response.data['results'][0]['genes'][0], dict))
+        self.assertTrue(isinstance(list_response.data['results'][0]['genes'][1], dict))
+        self.assertTrue(isinstance(list_response.data['results'][0]['diseases'][0], dict))
+        self.assertTrue(isinstance(list_response.data['results'][0]['diseases'][1], dict))
+
+        self.assertTrue(isinstance(list_response.data['results'][1]['genes'][0], dict))
+        self.assertTrue(isinstance(list_response.data['results'][1]['genes'][1], dict))
+        self.assertTrue(isinstance(list_response.data['results'][1]['diseases'][0], dict))
+        self.assertTrue(isinstance(list_response.data['results'][1]['diseases'][1], dict))
+
