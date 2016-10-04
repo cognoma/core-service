@@ -43,6 +43,17 @@ class UserTests(APITestCase):
         self.assertEqual(update_response.data['email'], 'foo@yahoo.com')
         self.assertEqual(list(update_response.data.keys()), self.user_get_update_keys)
 
+    def test_user_update_must_be_logged_in(self):
+        client = APIClient()
+
+        create_repsonse = client.post('/users', {}, format='json')
+
+        update_response = client.put('/users/' + str(create_repsonse.data['id']),
+                                     {'email': 'foo@yahoo.com'},
+                                     format='json')
+
+        self.assertEqual(update_response.status_code, 401)
+
     def test_cannot_update_other_user(self):
         client = APIClient()
 

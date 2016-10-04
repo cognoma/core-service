@@ -10,8 +10,6 @@ class CognomaAuthentication(authentication.BaseAuthentication):
 
         auth_header = request.META['HTTP_AUTHORIZATION']
 
-        print(auth_header)
-
         if not auth_header:
             return None
 
@@ -19,7 +17,6 @@ class CognomaAuthentication(authentication.BaseAuthentication):
 
         try:
             user = User.objects.get(random_slugs__contains=[token])
-            print(user.id)
         except User.DoesNotExist:
             raise exceptions.AuthenticationFailed('User not found')
 
@@ -27,3 +24,38 @@ class CognomaAuthentication(authentication.BaseAuthentication):
 
     def authenticate_header(self, request):
         return "HTTP 401 Unauthorized"
+
+class UserUpdateSelfOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method != 'PUT':
+            return True
+
+        if not request.user:
+            raise exceptions.NotAuthenticated()
+
+        if request.user.id == obj.id:
+            return True
+
+        return False
+
+class ClassifierPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if not request.user:
+            raise exceptions.NotAuthenticated()
+
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if not request.user:
+            raise exceptions.NotAuthenticated()
+
+        if request.user.id == obj.user.id:
+            return True
+
+        return False

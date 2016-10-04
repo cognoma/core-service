@@ -44,19 +44,18 @@ class ClassifierTests(APITestCase):
                                                name='bladder urothelial carcinoma')
         self.disease2 = Disease.objects.create(acronym='GBM',
                                                name='glioblastoma multiforme')
+        self.classifier_post_data = {
+            'genes': [self.gene1.id, self.gene2.id],
+            'diseases': [self.disease1.acronym, self.disease2.acronym]
+        }
 
 
     def test_create_classifier(self):
         client = APIClient()
 
-        classifier_post_data = {
-            'genes': [self.gene1.id, self.gene2.id],
-            'diseases': [self.disease1.acronym, self.disease2.acronym]
-        }
-
         client.credentials(HTTP_AUTHORIZATION=self.token)
 
-        response = client.post('/classifiers', classifier_post_data, format='json')
+        response = client.post('/classifiers', self.classifier_post_data, format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(list(response.data.keys()), self.classifier_keys)
@@ -65,12 +64,7 @@ class ClassifierTests(APITestCase):
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=self.token)
 
-        classifier_post_data = {
-            'genes': [self.gene1.id, self.gene2.id],
-            'diseases': [self.disease1.acronym, self.disease2.acronym]
-        }
-
-        create_response = client.post('/classifiers', classifier_post_data, format='json')
+        create_response = client.post('/classifiers', self.classifier_post_data, format='json')
 
         self.assertEqual(create_response.status_code, 201)
 
@@ -86,16 +80,30 @@ class ClassifierTests(APITestCase):
         self.assertEqual(list(update_response.data.keys()), self.classifier_keys)
         self.assertEqual(update_response.data['results'], results)
 
+    def test_must_be_logged_in(self):
+        client = APIClient()
+        create1_response = client.post('/classifiers', self.classifier_post_data, format='json')
+
+        self.assertEqual(create1_response.status_code, 401)
+
+        client.credentials(HTTP_AUTHORIZATION=self.token)
+
+        create2_response = client.post('/classifiers', self.classifier_post_data, format='json')
+
+        classifier = create2_response.data
+
+        client = APIClient() # clear token
+
+        update_response = client.put('/classifiers/' + str(classifier['id']), {}, format='json')
+
+        self.assertEqual(update_response.status_code, 401)
+
+
     def test_cannot_update_other_user_classifier(self):
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=self.token)
 
-        classifier_post_data = {
-            'genes': [self.gene1.id, self.gene2.id],
-            'diseases': [self.disease1.acronym, self.disease2.acronym]
-        }
-
-        create_response = client.post('/classifiers', classifier_post_data, format='json')
+        create_response = client.post('/classifiers', self.classifier_post_data, format='json')
 
         self.assertEqual(create_response.status_code, 201)
 
@@ -114,16 +122,13 @@ class ClassifierTests(APITestCase):
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=self.token)
 
-        classifier_post_data = {
-            'genes': [self.gene1.id, self.gene2.id],
-            'diseases': [self.disease1.acronym, self.disease2.acronym]
-        }
-
-        classifier1_response = client.post('/classifiers', classifier_post_data, format='json')
-        classifier2_response = client.post('/classifiers', classifier_post_data, format='json')
+        classifier1_response = client.post('/classifiers', self.classifier_post_data, format='json')
+        classifier2_response = client.post('/classifiers', self.classifier_post_data, format='json')
 
         self.assertEqual(classifier1_response.status_code, 201)
         self.assertEqual(classifier2_response.status_code, 201)
+
+        client = APIClient() # clear token
 
         list_response = client.get('/classifiers')
 
@@ -140,14 +145,11 @@ class ClassifierTests(APITestCase):
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=self.token)
 
-        classifier_post_data = {
-            'genes': [self.gene1.id, self.gene2.id],
-            'diseases': [self.disease1.acronym, self.disease2.acronym]
-        }
-
-        create_classifier_response = client.post('/classifiers', classifier_post_data, format='json')
+        create_classifier_response = client.post('/classifiers', self.classifier_post_data, format='json')
 
         self.assertEqual(create_classifier_response.status_code, 201)
+
+        client = APIClient() # clear token
 
         get_classifier_response = client.get('/classifiers/' + str(create_classifier_response.data['id']))
 

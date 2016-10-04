@@ -5,6 +5,7 @@ from rest_framework import generics
 from api.models import User, Classifier, Disease, Sample, Mutation
 from genes.models import Gene, Organism
 from api import serializers
+from api.auth import UserUpdateSelfOnly, ClassifierPermission
 
 # Classifier
 
@@ -20,6 +21,7 @@ class ClassifierFilter(filters.FilterSet):
         fields = ['user', 'created_at', 'updated_at']
 
 class ClassifierListCreate(generics.ListCreateAPIView):
+    permission_classes = (ClassifierPermission,)
     queryset = Classifier.objects.all()
     serializer_class = serializers.ClassifierSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -28,6 +30,7 @@ class ClassifierListCreate(generics.ListCreateAPIView):
     ordering = ('created_at',)
 
 class ClassifierRetrieveUpdate(generics.RetrieveUpdateAPIView):
+    permission_classes = (ClassifierPermission,)
     queryset = Classifier.objects.all()
     serializer_class = serializers.ClassifierSerializer
     lookup_field = 'id'
@@ -54,6 +57,7 @@ class UserListCreate(generics.ListCreateAPIView):
     ordering = ('created_at',)
 
 class UserRetrieveUpdate(generics.RetrieveUpdateAPIView):
+    permission_classes = (UserUpdateSelfOnly,)
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     lookup_field = 'id'

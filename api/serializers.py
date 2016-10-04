@@ -26,14 +26,6 @@ class UserSerializer(serializers.Serializer):
         return User.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        user = self.context['request'].user
-
-        if not user:
-            raise exceptions.NotAuthenticated()
-
-        if user.id != instance.id:
-            raise exceptions.PermissionDenied()
-
         instance.name = validated_data.get('name', instance.name)
         instance.email = validated_data.get('email', instance.email)
         instance.save()
@@ -87,11 +79,6 @@ class ClassifierSerializer(ExpanderSerializerMixin, serializers.Serializer):
     def create(self, validated_data):
         user = self.context['request'].user
 
-        if not user:
-            raise exceptions.NotAuthenticated()
-
-        print(validated_data)
-
         classifier_input = {
             'user': user, # force loggedin user id
             'task_id': 234 # TODO: create task
@@ -113,14 +100,6 @@ class ClassifierSerializer(ExpanderSerializerMixin, serializers.Serializer):
         return classifier
 
     def update(self, instance, validated_data):
-        user = self.context['request'].user
-
-        if not user:
-            raise exceptions.NotAuthenticated()
-
-        if user.id != instance.user.id:
-            raise exceptions.PermissionDenied()
-
         instance.genes = validated_data.get('genes', instance.genes)
         instance.diseases = validated_data.get('diseases', instance.diseases)
         instance.results = validated_data.get('results', instance.results)
