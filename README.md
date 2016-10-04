@@ -2,10 +2,14 @@
 
 This repository, under the umbrella of Project Cognoma
 (https://github.com/cognoma), holds the source code, under open source
-licence, of a runnable django rest API, a component in the overall system
+license, of a runnable django rest API, a component in the overall system
 specified in Project Cognoma.
 
 ## Getting started
+
+Make sure to fork [this repository on
+ +GitHub](https://github.com/cognoma/core-service "cognoma/core-servic on
+ +GitHub") first.
 
 ### Prerequisites
 - Python 3 - tested with Python 3.5.1
@@ -25,7 +29,8 @@ specified in Project Cognoma.
 
 ### Setup up the API
 
-    > git clone git@github.com:cognoma/core-service.git
+    > USERNAME=your_github_handle # Change to your GitHub Handle
+    > git clone git@github.com:${USERNAME}/core-service.git
     > cd core-service
     > virtualenv -p python3 env
     > source env/bin/activate
