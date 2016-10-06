@@ -18,7 +18,6 @@ class User(models.Model):
     random_slugs = postgresfields.ArrayField(models.CharField(max_length=25))
     name = models.CharField(null=True, max_length=255, blank=True)
     email = models.CharField(null=True, max_length=2048, blank=False)
-    last_login = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

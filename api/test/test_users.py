@@ -1,17 +1,20 @@
 from rest_framework.test import APITestCase, APIClient
 
 class UserTests(APITestCase):
-    user_get_update_keys = ['id',
-                            'name',
-                            'email',
-                            'last_login',
-                            'created_at',
-                            'updated_at']
+    user_get_keys = ['id',
+                     'name',
+                     'created_at',
+                     'updated_at']
+
+    user_update_get_self_keys = ['id',
+                                 'name',
+                                 'email',
+                                 'created_at',
+                                 'updated_at']
 
     user_create_keys = ['id',
                         'name',
                         'email',
-                        'last_login',
                         'created_at',
                         'updated_at',
                         'random_slugs']
@@ -41,7 +44,7 @@ class UserTests(APITestCase):
 
         self.assertEqual(update_response.status_code, 200)
         self.assertEqual(update_response.data['email'], 'foo@yahoo.com')
-        self.assertEqual(list(update_response.data.keys()), self.user_get_update_keys)
+        self.assertEqual(list(update_response.data.keys()), self.user_update_get_self_keys)
 
     def test_user_update_must_be_logged_in(self):
         client = APIClient()
@@ -84,8 +87,8 @@ class UserTests(APITestCase):
                                                            'previous',
                                                            'results'])
         self.assertEqual(len(list_response.data['results']), 2)
-        self.assertEqual(list(list_response.data['results'][0].keys()), self.user_get_update_keys)
-        self.assertEqual(list(list_response.data['results'][1].keys()), self.user_get_update_keys)
+        self.assertEqual(list(list_response.data['results'][0].keys()), self.user_get_keys)
+        self.assertEqual(list(list_response.data['results'][1].keys()), self.user_get_keys)
 
     def test_get_user(self):
         client = APIClient()
@@ -97,4 +100,20 @@ class UserTests(APITestCase):
         user_response = client.get('/users/' + str(user_create_response.data['id']))
 
         self.assertEqual(user_response.status_code, 200)
-        self.assertEqual(list(user_response.data.keys()), self.user_get_update_keys)
+        self.assertEqual(list(user_response.data.keys()), self.user_get_keys)
+
+    def test_get_user_self(self):
+        client = APIClient()
+
+        user_create_response = client.post('/users', {}, format='json')
+
+        self.assertEqual(user_create_response.status_code, 201)
+
+        token = 'Bearer ' + user_create_response.data['random_slugs'][0]
+
+        client.credentials(HTTP_AUTHORIZATION=token)
+
+        user_response = client.get('/users/' + str(user_create_response.data['id']))
+
+        self.assertEqual(user_response.status_code, 200)
+        self.assertEqual(list(user_response.data.keys()), self.user_update_get_self_keys)

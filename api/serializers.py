@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 import string
 import random
 
@@ -12,16 +11,14 @@ class UserSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(required=False, allow_blank=True, max_length=255)
     email = serializers.CharField(required=False, allow_blank=False, max_length=255)
-    last_login = serializers.DateTimeField(read_only=True, format='iso-8601')
     created_at = serializers.DateTimeField(read_only=True, format='iso-8601')
     updated_at = serializers.DateTimeField(read_only=True, format='iso-8601')
 
     def create(self, validated_data):
         ## 25 charcters to get 128bit unique random slug
-        slug = "".join([random.SystemRandom().choice(string.ascii_lowercase + string.digits) for n in range(25)])
+        slug = "".join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for n in range(25))
 
         validated_data['random_slugs'] = [slug]
-        validated_data['last_login'] = datetime.now(timezone.utc)
 
         return User.objects.create(**validated_data)
 
@@ -33,6 +30,12 @@ class UserSerializer(serializers.Serializer):
 
     def to_representation(self, obj):
         output = serializers.Serializer.to_representation(self, obj)
+
+        if ((not self.context['request'].user or
+             (self.context['request'].user and
+              self.context['request'].user.id != obj.id)) and
+            self.context['request'].method != 'POST'):
+           del output['email']
 
         ## Only return secure random slug on create
         if self.context['request'].method == 'POST':

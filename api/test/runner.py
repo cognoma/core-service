@@ -9,9 +9,13 @@ def prepare_database(self):
     GRANT ALL ON SCHEMA cognoma TO app;
     """)
 
-## based on http://stackoverflow.com/a/37861814
-
 class PostgresSchemaTestRunner(DiscoverRunner):
+    """
+    Because testing creates/destroys a new database each time, we have to setup
+    schema level permissions each time as well.
+
+    This class is based on http://stackoverflow.com/a/37861814
+    """
 
     def setup_databases(self, **kwargs):
         for connection_name in connections:
