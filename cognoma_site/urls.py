@@ -1,30 +1,20 @@
-"""cognoma_site URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.9/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
-"""
-from django.conf.urls import url, include
-from django.contrib import admin
-from rest_framework import routers
-
-from admin_rest import views as admin_rest_views
-
-router = routers.DefaultRouter()
-router.register(r'users', admin_rest_views.UserViewSet)
-router.register(r'groups', admin_rest_views.GroupViewSet)
+from django.conf.urls import url
+from rest_framework.urlpatterns import format_suffix_patterns
+from api import views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^api/', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^classifiers/?$', views.ClassifierListCreate.as_view()),
+    url(r'^classifiers/(?P<id>[0-9]+)$', views.ClassifierRetrieveUpdate.as_view()),
+    url(r'^users/?$', views.UserListCreate.as_view()),
+    url(r'^users/(?P<id>[0-9]+)$', views.UserRetrieveUpdate.as_view()),
+    url(r'^genes/?$', views.GeneList.as_view()),
+    url(r'^genes/(?P<id>[0-9]+)$', views.GeneRetrieve.as_view()),
+    url(r'^organisms/?$', views.OrganismList.as_view()),
+    url(r'^organisms/(?P<id>[0-9]+)$', views.OrganismRetrieve.as_view()),
+    url(r'^diseases/?$', views.DiseaseList.as_view()),
+    url(r'^diseases/(?P<acronym>[a-zA-Z]+)$', views.DiseaseRetrieve.as_view()),
+    url(r'^mutations/?$', views.MutationList.as_view()),
+    url(r'^mutations/(?P<id>[0-9]+)$', views.MutationRetrieve.as_view()),
+    url(r'^samples/?$', views.SampleList.as_view()),
+    url(r'^samples/(?P<sample_id>[A-Z0-9\-]+)$', views.SampleRetrieve.as_view()),
 ]

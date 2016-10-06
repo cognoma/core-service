@@ -1,39 +1,44 @@
-# Repository for django-cognoma
+# Cognoma core-service
 
 This repository, under the umbrella of Project Cognoma
 (https://github.com/cognoma), holds the source code, under open source
-licence, of a runnable django site, a component in the overall system
-specified in Project Cognoma. The django site will fulfill the system
-requirements specified in the purple box in the middle of the system flow chart
-and will contain the following:
+license, of a runnable django rest API, a component in the overall system
+specified in Project Cognoma.
 
-* an html interface starting at a home page for anonymous users to visit
-  and try out machine learning algorithms, as well as admin pages for
-  site admins to be able to manipulate site content
+## Getting started
 
-* a Rest API for other components of the system to use to read and write data
-  found on the django site.
+Make sure to fork [this repository on
+ +GitHub](https://github.com/cognoma/core-service "cognoma/core-service on
+ +GitHub") first.
 
-The site is currently only ready to be run on a developer's machine.  As it
-becomes ready for staging, there will need to be instructions added for the
-various cloud instances running.  For now, as a developer, one can get it
-running on their machine with the following instructions in a command window
-(make sure to fork [this repository on
-GitHub](https://github.com/cognoma/django-cognoma "cognoma/django-cognoma on
-GitHub") first):
+### Prerequisites
+- Python 3 - tested with Python 3.5.1
+- virtualenv - tested on 15.0.2
+- Postgres 9.5.x - tested on Postgres 9.5.2
+
+### Setup Postgres
+
+```sh
+CREATE USER app WITH PASSWORD 'password';
+CREATE DATABASE cognoma;
+CREATE SCHEMA cognoma;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA cognoma TO app;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA cognoma TO app;
+ALTER DEFAULT PRIVILEGES IN SCHEMA cognoma GRANT ALL PRIVILEGES ON TABLES TO app;
+ALTER DEFAULT PRIVILEGES IN SCHEMA cognoma GRANT ALL PRIVILEGES ON SEQUENCES TO app;
+```
+
+### Setup up the API
 
 ```sh
 USERNAME=your_github_handle # Change to your GitHub Handle
-git clone git@github.com:${USERNAME}/django-cognoma.git
-cd django-cognoma
-virtualenv env
+git clone git@github.com:${USERNAME}/core-service.git
+cd core-service
+virtualenv --python=python3 env
 source env/bin/activate
 pip install --requirement requirements.txt
 python manage.py migrate
-python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Visiting localhost:8000/api in a browser should return the root page of the
-rest api.  Until a designer mocs us up a home page, localhost:8000 will bring
-up an error page.
+The server should start up at http://127.0.0.1:8000/, see the [API docs](https://github.com/cognoma/core-service/blob/master/doc/api.md).
