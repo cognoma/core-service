@@ -1,0 +1,9 @@
+machine:
+  python:
+    version: 3.5.1
+  services:
+    - postgresql
+
+database:
+  override:
+    - psql -c "CREATE ROLE app PASSWORD 'password' SUPERUSER CREATEDB INHERIT LOGIN"

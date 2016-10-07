@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('genes', '0001_initial'),
+        ('genes', '__latest__'),
     ]
 
     operations = [
