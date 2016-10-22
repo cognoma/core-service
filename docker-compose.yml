@@ -1,0 +1,19 @@
+version: '2'
+services:
+  core_db:
+    image: postgres
+  core:
+    build: .
+    command: bash -c "python manage.py makemigrations genes && python manage.py makemigrations organisms && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - core_db
+  nginx:
+    build:
+      context: .
+      dockerfile: config/dev/Dockerfile_nginx
+    ports:
+      - "8080:80"

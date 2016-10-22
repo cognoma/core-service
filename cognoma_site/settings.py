@@ -19,11 +19,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
+# The warning below is usually correct, but we do not use this secret key in this project
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'x!w(6=d6#)yl0ne8yhv#2+*+_nk7vf0#peh4hehg$&83fp^u01'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -62,18 +63,12 @@ WSGI_APPLICATION = 'cognoma_site.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cognoma',
-        'USER': 'app',
-        'PASSWORD': 'password',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-        'OPTIONS': {
-            'options': '-c search_path=cognoma'
-        }
+        'NAME': os.getenv('DB_NAME', 'postgres'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'HOST': os.getenv('DB_HOST', 'core_db'),
+        'PORT': os.getenv('DB_PORT', '5432')
     }
 }
-
-TEST_RUNNER = 'api.test.runner.PostgresSchemaTestRunner'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/

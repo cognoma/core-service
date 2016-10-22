@@ -1,9 +1,9 @@
 machine:
   python:
     version: 3.5.1
+  environment:
+    DB_NAME: circle_test
+    DB_USER: ubuntu
+    DB_HOST: 127.0.0.1
   services:
     - postgresql
-
-database:
-  override:
-    - psql -c "CREATE ROLE app PASSWORD 'password' SUPERUSER CREATEDB INHERIT LOGIN"
