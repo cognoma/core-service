@@ -49,6 +49,7 @@ class ClassifierTests(APITestCase):
             'diseases': [self.disease1.acronym, self.disease2.acronym]
         }
 
+        self.service_token = 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzZXJ2aWNlIjoiY29yZSJ9.HHlbWMjo-Y__DGV0DAiCY7u85FuNtY8wpovcZ9ga-oCsLdM2H5iVSz1vKiWK8zxl7dSYltbnyTNMxXO2cDS81hr4ohycr7YYg5CaE5sA5id73ab5T145XEdF5X_HXoeczctGq7X3x9QYSn7O1fWJbPWcIrOCs6T2DrySsYgjgdAAnWnKedy_dYWJ0YtHY1bXH3Y7T126QqVlQ9ylHk6hmFMCtxMPbuAX4YBJsxwjWpMDpe13xbaU0Uqo5N47a2_vi0XzQ_tzH5esLeFDl236VqhHRTIRTKhPTtRbQmXXy1k-70AU1FJewVrQddxbzMXJLFclStIdG_vW1dWdqhh-hQ'
 
     def test_create_classifier(self):
         client = APIClient()
@@ -56,6 +57,19 @@ class ClassifierTests(APITestCase):
         client.credentials(HTTP_AUTHORIZATION=self.token)
 
         response = client.post('/classifiers', self.classifier_post_data, format='json')
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(list(response.data.keys()), self.classifier_keys)
+
+    def test_create_from_internal_service(self):
+        client = APIClient()
+
+        client.credentials(HTTP_AUTHORIZATION=self.service_token)
+
+        classifier_post_data = self.classifier_post_data.copy()
+        classifier_post_data['user'] = self.user['id']
+
+        response = client.post('/classifiers', classifier_post_data, format='json')
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(list(response.data.keys()), self.classifier_keys)
@@ -117,6 +131,29 @@ class ClassifierTests(APITestCase):
         update_response = client.put('/classifiers/' + str(classifier['id']), classifier, format='json')
 
         self.assertEqual(update_response.status_code, 403)
+
+    def test_update_from_internal_service(self):
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=self.token)
+
+        create_response = client.post('/classifiers', self.classifier_post_data, format='json')
+
+        self.assertEqual(create_response.status_code, 201)
+
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=self.service_token)
+
+        classifier = create_response.data
+
+        results = {'test': {'data': 'testing...'}, 'foo': 'bar'}
+
+        classifier['results'] = results
+
+        update_response = client.put('/classifiers/' + str(classifier['id']), classifier, format='json')
+
+        self.assertEqual(update_response.status_code, 200)
+        self.assertEqual(list(update_response.data.keys()), self.classifier_keys)
+        self.assertEqual(update_response.data['results'], results)
 
     def test_list_classifiers(self):
         client = APIClient()

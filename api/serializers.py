@@ -31,10 +31,16 @@ class UserSerializer(serializers.Serializer):
     def to_representation(self, obj):
         output = serializers.Serializer.to_representation(self, obj)
 
-        if ((not self.context['request'].user or
-             (self.context['request'].user and
-              self.context['request'].user.id != obj.id)) and
-            self.context['request'].method != 'POST'):
+        if self.context['request'].auth and self.context['request'].auth['type']:
+            auth_type = self.context['request'].auth['type']
+        else:
+            auth_type = None
+
+        if (self.context['request'].method != 'POST' and
+            auth_type != 'JWT' and
+            (not self.context['request'].user or
+             (auth_type != 'Bearer' and
+              self.context['request'].user.id != obj.id))):
            del output['email']
 
         ## Only return secure random slug on create
@@ -87,7 +93,13 @@ class ClassifierSerializer(ExpanderSerializerMixin, serializers.Serializer):
     updated_at = serializers.DateTimeField(read_only=True, format='iso-8601')
 
     def create(self, validated_data):
-        user = self.context['request'].user
+        if self.context['request'].auth['type'] == 'JWT':
+            if 'user' not in validated_data:
+                raise exceptions.ValidationError({'user': 'Required when using an internal service token'})
+
+            user = validated_data['user']
+        else:
+            user = self.context['request'].user
 
         classifier_input = {
             'user': user, # force loggedin user id

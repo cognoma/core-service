@@ -1,5 +1,9 @@
+import re
+
 from rest_framework import authentication, permissions
 from rest_framework import exceptions
+from django.conf import settings
+import jwt
 
 from api.models import User
 
@@ -13,14 +17,35 @@ class CognomaAuthentication(authentication.BaseAuthentication):
         if not auth_header:
             return None
 
-        token = str.replace(auth_header, "Bearer ", "")
+        match = re.match("^(?P<type>Bearer|JWT)\s(?P<token>.+)$", auth_header)
 
-        try:
-            user = User.objects.get(random_slugs__contains=[token])
-        except User.DoesNotExist:
-            raise exceptions.AuthenticationFailed('User not found')
+        if not match:
+            return None
 
-        return (user, None)
+        auth_type = match.group('type')
+        token = match.group('token')
+
+        if auth_type == 'Bearer':
+            try:
+                user = User.objects.get(random_slugs__contains=[token])
+            except User.DoesNotExist:
+                raise exceptions.AuthenticationFailed('User not found')
+
+            return (user, {'type': auth_type})
+        elif auth_type == 'JWT':
+            try:
+                payload = jwt.decode(token, settings.JWT_PUB_KEY, algorithms=["RS256"])
+            except:
+                return None
+
+            if 'service' not in payload:
+                return None
+
+            service = payload['service']
+
+            return (service, {'type': auth_type, 'service': service})
+        else:
+            return None
 
     def authenticate_header(self, request):
         return "HTTP 401 Unauthorized"
@@ -33,7 +58,7 @@ class UserUpdateSelfOnly(permissions.BasePermission):
         if not request.user:
             raise exceptions.NotAuthenticated()
 
-        if request.user.id == obj.id:
+        if request.auth['type'] == 'JWT' or request.user.id == obj.id:
             return True
 
         return False
@@ -55,7 +80,7 @@ class ClassifierPermission(permissions.BasePermission):
         if not request.user:
             raise exceptions.NotAuthenticated()
 
-        if request.user.id == obj.user.id:
+        if request.auth['type'] == 'JWT' or request.user.id == obj.user.id:
             return True
 
         return False

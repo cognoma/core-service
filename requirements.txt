@@ -1,3 +1,5 @@
+cffi==1.8.3
+cryptography==1.5.2
 Django==1.9.8
 django-filter==0.14.0
 django-fixtureless==1.4.3.3
@@ -6,4 +8,10 @@ django-haystack==2.5.0
 django-organisms==0.3
 djangorestframework==3.4.0
 djangorestframework-expander==0.2.1
+idna==2.1
 psycopg2==2.6.2
+pyasn1==0.1.9
+pycparser==2.16
+pycrypto==2.6.1
+PyJWT==1.4.2
+six==1.10.0
