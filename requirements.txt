@@ -8,6 +8,7 @@ django-haystack==2.5.0
 django-organisms==0.3
 djangorestframework==3.4.0
 djangorestframework-expander==0.2.1
+drf-dynamic-fields==0.1.1
 idna==2.1
 psycopg2==2.6.2
 pyasn1==0.1.9

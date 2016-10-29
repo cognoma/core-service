@@ -150,7 +150,7 @@ class SampleFilter(filters.FilterSet):
 
     class Meta:
         model = Sample
-        fields = ['sample_id', 'disease', 'gender', 'age_diagnosed']
+        fields = ['sample_id', 'disease', 'gender', 'age_diagnosed', 'mutations__gene', 'mutations__gene__entrezid']
 
 class SampleList(generics.ListAPIView):
     queryset = Sample.objects.all()

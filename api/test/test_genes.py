@@ -10,7 +10,8 @@ class GeneTests(APITestCase):
                  'description',
                  'organism',
                  'aliases',
-                 'obsolete']
+                 'obsolete',
+                 'mutations']
 
     def setUp(self):
         self.human = Organism.objects.create(taxonomy_id=123,

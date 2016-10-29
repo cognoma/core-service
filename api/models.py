@@ -42,7 +42,7 @@ class Mutation(models.Model):
         db_table = "mutations"
 
     # id added by default
-    gene = models.ForeignKey(Gene)
+    gene = models.ForeignKey(Gene, related_name='mutations')
     sample = models.ForeignKey(Sample, related_name='mutations')
     status = models.BooleanField()
 
