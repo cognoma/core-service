@@ -14,7 +14,7 @@ A classifier represents a classifier built using machine learning in Cognoma.
 | Field        | Type           | Description | Read-Only
 | ------------- |:-------------:| ----------:| ----------:|
 | id | integer | Primary Key. Auto-incrementing. | Y |
-| genes | array[integer] | Genes to be used in the classifier. entrezids. Can be expanded. eg ?expand=genes | N |
+| genes | array[integer] | Genes to be used in the classifier. Entrez GeneIDs. Can be expanded. eg ?expand=genes | N |
 | diseases | array[string] | Diseases of interest for the classifier. ex ["KIRC","KIRP"] Can be expanded. eg ?expand=diseases | N |
 | user_id | integer | Foreign Key referencing the user who created the classifier. Can be expanded. eg ?expand=user | Y |
 | task_id | integer |  Foreign Key referencing the classifier task. Can be expanded. eg ?expand=user,task | Y |
@@ -36,28 +36,16 @@ A user of the Cognoma system.
 
 ### Gene (/genes)
 
-Reference table for genes within Cognoma. Entire model is read-only. This table is created using [`django-genes`](https://bitbucket.org/greenelab/django-genes).
+Reference table for genes within Cognoma. Entire model is read-only. This table is populated from the data in [`cognoma/genes`](https://github.com/cognoma/genes).
 
 | Field        | Type           | Description |
 | ------------- |:-------------:| ----------:|
-| entrezid | integer | Primary Key. |
-| systematic_name | string |  |
-| standard_name | string |  |
-| description | string |  |
-| organism | integer | Foreign Key referencing the Organism. |
-| aliases | string | space-separated list of aliases |
-| obsolete | boolean |  |
-| weight | boolean | Weight used for search results since multiple genes may have the same symbol |
-
-### Organism (/organisms)
-
-Reference table for organisms within Cognoma. Entire model is read-only. This table is created using [`django-organisms`](https://bitbucket.org/greenelab/django-organisms). Note that Project Cognoma will deal exclusively with human genes (when taxonomy_id equals 9606).
-
-| Field        | Type           | Description |
-| ------------- |:-------------:| ----------:|
-| taxonomy_id | integer | Primary Key. Taxonomy ID assigned by NCBI. |
-| common_name | string | Organism common name, e.g. 'Human' |
-| scientific_name | string | Organism scientific/binomial name, e.g. 'Homo sapiens' |
+| entrez_gene_id | integer | The Entrez GeneID which is also used as the primary key |
+| symbol | string | The short human-readable identifier |
+| description | string | The official full name for the gene |
+| gene_type | string | The type of gene |
+| synonyms | array[string] | Alternative symbols |
+| aliases | array[string] | Alternative descriptions |
 
 ### Disease (/diseases)
 
