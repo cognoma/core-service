@@ -17,3 +17,5 @@ services:
       dockerfile: config/dev/Dockerfile_nginx
     ports:
       - "8080:80"
+    depends_on:
+      - core
