@@ -35,3 +35,17 @@ Make sure the service is up first using `docker-compose up` then run:
 ```sh
 docker-compose exec core python manage.py test
 ```
+
+## Loading cancer static data
+
+To load data, again with service up run:
+
+```sh
+docker-compose exec core bash
+python manage.py acquiredata 
+python manage.py loaddata
+```
+
+To verify, run `curl http://localhost:8000/diseases/` to get a list of all diseases.
+
+Or, run `curl http://localhost:8000/samples?limit=10` to view data for 10 samples.

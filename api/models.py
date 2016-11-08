@@ -34,8 +34,8 @@ class Sample(models.Model):
 
     sample_id = models.CharField(primary_key=True, max_length=255) # ID assigned by TCGA
     disease = models.ForeignKey(Disease)
-    gender =  models.CharField(choices=GENDER_CHOICES, max_length=6)
-    age_diagnosed = models.IntegerField(null=False, blank=False)
+    gender = models.CharField(choices=GENDER_CHOICES, max_length=6, null=True)
+    age_diagnosed = models.IntegerField(null=True, blank=False)
 
 class Mutation(models.Model):
     class Meta:

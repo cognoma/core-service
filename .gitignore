@@ -95,3 +95,6 @@ envs/
 
 # Cognoma data directory
 data/
+
+# PyCharm IDE 
+.idea
