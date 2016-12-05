@@ -54,7 +54,7 @@ class Classifier(models.Model):
     genes = models.ManyToManyField(Gene)
     diseases = models.ManyToManyField(Disease)
     user = models.ForeignKey(User)
-    task_id = models.IntegerField(null=False, blank=False)
+    task_id = models.IntegerField(null=True, blank=False)
     results = postgresfields.JSONField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

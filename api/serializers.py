@@ -4,9 +4,11 @@ import random
 from rest_framework import serializers, exceptions
 from expander import ExpanderSerializerMixin
 from drf_dynamic_fields import DynamicFieldsMixin
+from django.conf import settings
 
 from api.models import User, Classifier, Disease, Sample, Mutation
 from genes.models import Gene, Organism
+from api.services.task import TaskServiceClient
 
 class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
@@ -119,7 +121,6 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
 
         classifier_input = {
             'user': user, # force loggedin user id
-            'task_id': 234 # TODO: create task
         }
 
         if 'results' in validated_data:
@@ -134,6 +135,21 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
         if 'diseases' in validated_data:
             for disease in validated_data['diseases']:
                 classifier.diseases.add(disease)
+
+        if settings.CREATE_TASKS:
+            task_service = TaskServiceClient(settings.TASK_SERVICE_BASE_URL,
+                                             settings.AUTH_TOKEN)
+
+            task = {
+                'task_def': 'classifier-search',
+                'unique': str(classifier.id),
+                'data': classifier
+            }
+
+            task = task_service.create(task)
+
+            classifier.task_id = task.id
+            classifier.save()
 
         return classifier
 
