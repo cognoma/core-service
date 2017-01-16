@@ -35,5 +35,5 @@ class Command(BaseCommand):
 
         mutation_path = os.path.join(options['path'], 'mutation-matrix.tsv.bz2')
         if not os.path.exists(mutation_path):
-            mutation_url = 'https://ndownloader.figshare.com/files/5864862'
+            mutation_url = 'https://ndownloader.figshare.com/files/7311953'
             urlretrieve(mutation_url, mutation_path)

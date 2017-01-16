@@ -20,6 +20,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Diseases
         if Disease.objects.count() == 0:
+            print('Loading diseases table...')
             disease_path = os.path.join(options['path'], 'diseases.tsv')
             with open(disease_path) as disease_file:
                 disease_reader = csv.DictReader(disease_file, delimiter='\t')
@@ -34,6 +35,7 @@ class Command(BaseCommand):
 
         # Samples
         if Sample.objects.count() == 0:
+            print('Loading samples table...')
             sample_path = os.path.join(options['path'], 'samples.tsv')
             with open(sample_path) as sample_file:
                 sample_reader = csv.DictReader(sample_file, delimiter='\t')
@@ -51,6 +53,7 @@ class Command(BaseCommand):
 
         # Genes
         if Gene.objects.count() == 0:
+            print('Loading genes table...')
             gene_path = os.path.join(options['path'], 'genes.tsv')
             with open(gene_path) as gene_file:
                 gene_reader = csv.DictReader(gene_file, delimiter='\t')
@@ -70,6 +73,7 @@ class Command(BaseCommand):
 
         # Mutations
         if Mutation.objects.count() == 0:
+            print('Loading mutations table...')
             mutation_path = os.path.join(options['path'], 'mutation-matrix.tsv.bz2')
             with bz2.open(mutation_path , 'rt') as mutation_file:
                 mutation_reader = csv.DictReader(mutation_file, delimiter='\t')
