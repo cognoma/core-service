@@ -2,8 +2,7 @@ import django_filters
 from rest_framework import filters
 from rest_framework import generics
 
-from api.models import User, Classifier, Disease, Sample, Mutation
-from genes.models import Gene, Organism
+from api.models import User, Classifier, Disease, Sample, Mutation, Gene
 from api import serializers
 from api.auth import UserUpdateSelfOnly, ClassifierPermission
 
@@ -67,40 +66,20 @@ class UserRetrieveUpdate(generics.RetrieveUpdateAPIView):
 class GeneFilter(filters.FilterSet):
     class Meta:
         model = Gene
-        fields = ['entrezid', 'systematic_name', 'standard_name', 'aliases', 'obsolete']
+        fields = ['entrez_gene_id', 'symbol', 'chromosome', 'gene_type']
 
 class GeneList(generics.ListAPIView):
     queryset = Gene.objects.all()
     serializer_class = serializers.GeneSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = GeneFilter
-    ordering_fields = ('entrezid', 'systematic_name', 'standard_name')
-    ordering = ('id',)
+    ordering_fields = ('entrez_gene_id', 'symbol', 'chromosome')
+    ordering = ('entrez_gene_id',)
 
 class GeneRetrieve(generics.RetrieveAPIView):
     queryset = Gene.objects.all()
     serializer_class = serializers.GeneSerializer
-    lookup_field = 'id'
-
-# Organisms
-
-class OrganismFilter(filters.FilterSet):
-    class Meta:
-        model = Organism
-        fields = ['taxonomy_id', 'common_name', 'scientific_name', 'slug']
-
-class OrganismList(generics.ListAPIView):
-    queryset = Organism.objects.all()
-    serializer_class = serializers.OrganismSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = OrganismFilter
-    ordering_fields = ('taxonomy_id', 'common_name', 'scientific_name')
-    ordering = ('id',)
-
-class OrganismRetrieve(generics.RetrieveAPIView):
-    queryset = Organism.objects.all()
-    serializer_class = serializers.OrganismSerializer
-    lookup_field = 'id'
+    lookup_field = 'entrez_gene_id'
 
 # Diseases
 
@@ -127,14 +106,14 @@ class DiseaseRetrieve(generics.RetrieveAPIView):
 class MutationFilter(filters.FilterSet):
     class Meta:
         model = Mutation
-        fields = ['gene', 'sample', 'status']
+        fields = ['gene', 'sample']
 
 class MutationList(generics.ListAPIView):
     queryset = Mutation.objects.all()
     serializer_class = serializers.MutationSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = MutationFilter
-    ordering_fields = ('id', 'status',)
+    ordering_fields = ('id',)
     ordering = ('id',)
 
 class MutationRetrieve(generics.RetrieveAPIView):
@@ -150,7 +129,7 @@ class SampleFilter(filters.FilterSet):
 
     class Meta:
         model = Sample
-        fields = ['sample_id', 'disease', 'gender', 'age_diagnosed', 'mutations__gene', 'mutations__gene__entrezid']
+        fields = ['sample_id', 'disease', 'gender', 'age_diagnosed', 'mutations__gene', 'mutations__gene__entrez_gene_id']
 
 class SampleList(generics.ListAPIView):
     queryset = Sample.objects.all()

@@ -1,7 +1,6 @@
 from rest_framework.test import APITestCase, APIClient
 
-from api.models import Sample, Disease, Mutation
-from genes.models import Gene, Organism
+from api.models import Sample, Disease, Mutation, Gene
 
 class SampleTests(APITestCase):
     sample_keys = ['sample_id',
@@ -11,17 +10,13 @@ class SampleTests(APITestCase):
                    'age_diagnosed']
 
     def setUp(self):
-        self.human = Organism.objects.create(taxonomy_id=123,
-                                             common_name='human',
-                                             scientific_name='homo sapien',
-                                             slug='homo-sapien')
-        self.gene1 = Gene.objects.create(entrezid=123456,
-                                         systematic_name='foo',
-                                         description='bar',
-                                         aliases='foo, bar',
-                                         obsolete=False,
-                                         weight=1.0,
-                                         organism_id=self.human.id)
+        self.gene1 = Gene.objects.create(entrez_gene_id=123456,
+                                         symbol='GENE123',
+                                         description='foo',
+                                         chromosome='1',
+                                         gene_type='bar',
+                                         synonyms=['foo', 'bar'],
+                                         aliases=['foo', 'bar'])
         self.disease1 = Disease.objects.create(acronym='BLCA',
                                                name='bladder urothelial carcinoma')
         self.sample1 = Sample.objects.create(sample_id='TCGA-22-4593-01',
@@ -34,11 +29,9 @@ class SampleTests(APITestCase):
                                              age_diagnosed=43)
 
         self.mutation1 = Mutation.objects.create(gene=self.gene1,
-                                                 sample=self.sample1,
-                                                 status=True)
+                                                 sample=self.sample1)
         self.mutation2 = Mutation.objects.create(gene=self.gene1,
-                                                 sample=self.sample2,
-                                                 status=True)
+                                                 sample=self.sample2)
 
     def test_list_samples(self):
         client = APIClient()
@@ -61,4 +54,3 @@ class SampleTests(APITestCase):
 
         self.assertEqual(get_response.status_code, 200)
         self.assertEqual(list(get_response.data.keys()), self.sample_keys)
-
