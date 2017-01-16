@@ -23,12 +23,9 @@ class BaseServiceClient(object):
 
         kwargs['headers']['Authorization'] = 'JWT ' + self.auth_token
 
-        print(self.baseurl + path)
-
         response = requests.request(method, self.baseurl + path, **kwargs)
 
-        ## TODO: handle non-200 responses
-
-        print(response)
+        if response.status_code < 200 or response.status_code > 299:
+            raise Exception('Failed to hit internal service for: ' + path)
 
         return response.json()

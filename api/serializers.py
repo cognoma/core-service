@@ -150,6 +150,29 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
         instance.save()
         return instance
 
+    def get_expands(self):
+        raw_expand = self.context['request'].query_params.getlist('expand')
+
+        if len(raw_expand) == 1:
+            return raw_expand[0].split(',')
+
+        return raw_expand
+
+    def to_representation(self, obj):
+        output = serializers.Serializer.to_representation(self, obj)
+
+        expand = self.context['request'].query_params.getlist('expand')
+
+        if 'task' in expand:
+            task_service = TaskServiceClient(settings.TASK_SERVICE_BASE_URL,
+                                             settings.AUTH_TOKEN)
+            output['task'] = task_service.get(output['task_id'])
+
+        if 'user' in expand and not isinstance(output['user'], dict):
+            output['user'] = UserSerializer(User.objects.get(id=output['user']), context=self.context).data
+
+        return output
+
 class SampleSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Serializer):
     class Meta:
         expandable_fields = {
