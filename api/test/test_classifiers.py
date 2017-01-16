@@ -1,4 +1,8 @@
+from unittest.mock import patch
+
 from rest_framework.test import APITestCase, APIClient
+
+from django.conf import settings
 
 from api.models import Disease, Gene
 
@@ -57,6 +61,23 @@ class ClassifierTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(list(response.data.keys()), self.classifier_keys)
 
+    @patch('api.services.TaskServiceClient.create')
+    def test_create_classifier_with_task(self, create_task_mock):
+        create_task_mock.return_value = {
+            'id': 123,
+            'data': {
+                'foo': 'bar'
+            }
+        }
+
+        client = APIClient()
+
+        client.credentials(HTTP_AUTHORIZATION=self.token)
+
+        settings.CREATE_TASKS = True
+
+        response = client.post('/classifiers', self.classifier_post_data, format='json')
+
     def test_create_from_internal_service(self):
         client = APIClient()
 
@@ -89,6 +110,8 @@ class ClassifierTests(APITestCase):
         self.assertEqual(update_response.status_code, 200)
         self.assertEqual(list(update_response.data.keys()), self.classifier_keys)
         self.assertEqual(update_response.data['results'], results)
+
+    ## TODO: test task cannot be updated / handling the task object on update
 
     def test_must_be_logged_in(self):
         client = APIClient()
