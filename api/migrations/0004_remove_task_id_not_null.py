@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0002_alter_sample_fields'),
+        ('api', '0003_genes_mutations'),
     ]
 
     operations = [

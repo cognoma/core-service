@@ -133,12 +133,12 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
             task = {
                 'task_def': 'classifier-search',
                 'unique': str(classifier.id),
-                'data': classifier
+                'data': ClassifierSerializer(classifier).data
             }
 
             task = task_service.create(task)
 
-            classifier.task_id = task.id
+            classifier.task_id = task['id']
             classifier.save()
 
         return classifier
