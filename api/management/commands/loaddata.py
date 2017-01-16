@@ -78,15 +78,18 @@ class Command(BaseCommand):
             with bz2.open(mutation_path , 'rt') as mutation_file:
                 mutation_reader = csv.DictReader(mutation_file, delimiter='\t')
                 mutation_list = []
+                count = 0
                 for row in mutation_reader:
                     sample_id = row.pop('sample_id')
-                    sample = Sample.objects.get(sample_id=sample_id)
+                    count += 1
+                    if count % 1000 == 0:
+                        print('Processing ' + str(count) + ' rows so far')
                     for entrez_gene_id, mutation_status in row.items():
                         if mutation_status == '1':
-                            try:
-                                gene = Gene.objects.get(entrez_gene_id=entrez_gene_id)
-                                mutation = Mutation(gene=gene, sample=sample)
+                            #try:
+                                mutation = Mutation(gene_id=entrez_gene_id, sample_id=sample_id)
                                 mutation_list.append(mutation)
-                            except:
-                                print('Had an issue inserting sample', sample_id, 'mutation', entrez_gene_id)
+                            #except:
+                            #    print('Had an issue inserting sample', sample_id, 'mutation', entrez_gene_id)
+                print('Bulk loading mutation data...')
                 Mutation.objects.bulk_create(mutation_list)
