@@ -13,7 +13,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('genes', '__latest__'),
     ]
 
     operations = [
@@ -45,7 +44,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('status', models.BooleanField()),
-                ('gene', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='genes.Gene')),
             ],
             options={
                 'db_table': 'mutations',
@@ -86,15 +84,5 @@ class Migration(migrations.Migration):
             model_name='classifier',
             name='diseases',
             field=models.ManyToManyField(to='api.Disease'),
-        ),
-        migrations.AddField(
-            model_name='classifier',
-            name='genes',
-            field=models.ManyToManyField(to='genes.Gene'),
-        ),
-        migrations.AddField(
-            model_name='classifier',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.User'),
         ),
     ]

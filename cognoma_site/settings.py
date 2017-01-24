@@ -43,8 +43,6 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'api.apps.ApiConfig',
-    'organisms',
-    'genes',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
