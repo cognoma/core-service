@@ -9,6 +9,11 @@ django-organisms==0.3
 djangorestframework==3.4.0
 djangorestframework-expander==0.2.1
 drf-dynamic-fields==0.1.1
+enum-compat==0.0.2
+eventlet==0.20.1
+gevent==1.2.1
+greenlet==0.4.11
+gunicorn==19.6.0
 idna==2.1
 psycopg2==2.6.2
 pyasn1==0.1.9
