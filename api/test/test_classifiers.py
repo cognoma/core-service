@@ -61,7 +61,7 @@ class ClassifierTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(list(response.data.keys()), self.classifier_keys)
 
-    @patch('api.services.TaskServiceClient.create')
+    @patch('api.services.task.TaskServiceClient.create')
     def test_create_classifier_with_task(self, create_task_mock):
         create_task_mock.return_value = {
             'id': 123,
@@ -74,9 +74,11 @@ class ClassifierTests(APITestCase):
 
         client.credentials(HTTP_AUTHORIZATION=self.token)
 
-        settings.CREATE_TASKS = True
+        #settings.CREATE_TASKS = True
 
         response = client.post('/classifiers', self.classifier_post_data, format='json')
+
+        #settings.CREATE_TASKS = False
 
     def test_create_from_internal_service(self):
         client = APIClient()

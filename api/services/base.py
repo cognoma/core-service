@@ -26,6 +26,6 @@ class BaseServiceClient(object):
         response = requests.request(method, self.baseurl + path, **kwargs)
 
         if response.status_code < 200 or response.status_code > 299:
-            raise Exception('Failed to hit internal service for: ' + path)
+            raise Exception('Failed to hit internal service for: ' + method + ' ' + path)
 
         return response.json()

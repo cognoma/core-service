@@ -109,9 +109,6 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
         else:
             user = self.context['request'].user
 
-        if self.context and 'request' in self.context:
-            expand = self.context['request'].query_params.getlist('expand')
-
         classifier_input = {
             'user': user, # force loggedin user id
         }
@@ -144,8 +141,10 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
             classifier.task_id = task['id']
             classifier.save()
 
-            if expand and 'task' in expand:
-                output['task'] = task
+            if self.context and 'request' in self.context and 'expand' in self.context['request'].query_params:
+                expand = self.context['request'].query_params.getlist('expand')
+                if 'task' in expand:
+                    output['task'] = task
 
         return classifier
 
@@ -159,16 +158,16 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
     def to_representation(self, obj):
         output = serializers.Serializer.to_representation(self, obj)
 
-        if self.context and 'request' in self.context:
+        if self.context and 'request' in self.context and 'expand' in self.context['request'].query_params:
             expand = self.context['request'].query_params.getlist('expand')
 
-        if expand and 'task' in expand:
-            task_service = TaskServiceClient(settings.TASK_SERVICE_BASE_URL,
-                                             settings.AUTH_TOKEN)
-            output['task'] = task_service.get(output['task_id'])
+            if 'task' in expand:
+                task_service = TaskServiceClient(settings.TASK_SERVICE_BASE_URL,
+                                                 settings.AUTH_TOKEN)
+                output['task'] = task_service.get(output['task_id'])
 
-        if expand and 'user' in expand and not isinstance(output['user'], dict):
-            output['user'] = UserSerializer(User.objects.get(id=output['user']), context=self.context).data
+            if 'user' in expand and not isinstance(output['user'], dict):
+                output['user'] = UserSerializer(User.objects.get(id=output['user']), context=self.context).data
 
         return output
 
