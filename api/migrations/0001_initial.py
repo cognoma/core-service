@@ -85,4 +85,9 @@ class Migration(migrations.Migration):
             name='diseases',
             field=models.ManyToManyField(to='api.Disease'),
         ),
+        migrations.AddField(
+            model_name='classifier',
+            name='user',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.User'),
+        ),
     ]
