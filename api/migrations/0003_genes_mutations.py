@@ -33,12 +33,12 @@ class Migration(migrations.Migration):
             model_name='mutation',
             name='status',
         ),
-        migrations.AlterField(
+        migrations.AddField(
             model_name='classifier',
             name='genes',
             field=models.ManyToManyField(to='api.Gene'),
         ),
-        migrations.AlterField(
+        migrations.AddField(
             model_name='mutation',
             name='gene',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mutations', to='api.Gene'),

@@ -3,9 +3,6 @@ cryptography==1.5.2
 Django==1.9.8
 django-filter==0.14.0
 django-fixtureless==1.4.3.3
-django-genes==0.3
-django-haystack==2.5.0
-django-organisms==0.3
 djangorestframework==3.4.0
 djangorestframework-expander==0.2.1
 drf-dynamic-fields==0.1.1
