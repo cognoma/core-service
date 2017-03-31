@@ -42,10 +42,70 @@ To load data, again with service up run:
 
 ```sh
 docker-compose exec core bash
-python manage.py acquiredata 
+python manage.py acquiredata
 python manage.py loaddata
 ```
 
 To verify, run `curl http://localhost:8000/diseases/` to get a list of all diseases.
 
 Or, run `curl http://localhost:8000/samples?limit=10` to view data for 10 samples.
+
+## Deployment
+
+### Prerequisites
+
+This project is deployed within the Greene Lab AWS account. To be able
+to deploy this project you will need to:
+1. Be invited to the account.
+2. Receive an AWS access key and secret key.
+
+### Logging Into ECR
+
+This project leverages
+[AWS Ec2 Container Service (ECS)](https://aws.amazon.com/ecs/details).
+ECS provides a private container registry called the
+[Ec2 Container Repository (ECR)](https://aws.amazon.com/ecr/).
+To be able to push Docker images to this repository you will first need to
+get a login with:
+```sh
+aws ecr get-login --region us-east-1
+```
+and then run the output of that command. It will look something like:
+```sh
+docker login -u AWS -p <A_GIANT_HASH> -e none https://934349674827.dkr.ecr.us-east-1.amazonaws.com
+```
+
+### Building, Tagging, and Pushing the Container
+
+This project uses two containers: one for Nginx and one for the core-service.
+You will probably be deploying only the core-service unless you have modified
+`config/prod/nginx.conf`.
+
+#### Core Service Container
+
+Run these commands:
+```
+docker build --tag cognoma-core-service .
+docker tag cognoma-core-service:latest 934349674827.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:latest
+docker push 934349674827.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:latest
+```
+
+#### Nginx Container
+
+Run these commands:
+```
+docker build --tag cognoma-nginx --file config/prod/Dockerfile_nginx .
+docker tag cognoma-nginx:latest 934349674827.dkr.ecr.us-east-1.amazonaws.com/cognoma-nginx:latest
+docker push 934349674827.dkr.ecr.us-east-1.amazonaws.com/cognoma-nginx:latest
+```
+
+### Restarting the ECS Task
+
+Navigate to
+[Cognoma's ECS Tasks Page](https://console.aws.amazon.com/ecs/home?region=us-east-1#/clusters/cognoma/tasks)
+and select the tasks corresponding to the container you are deploying.
+The tasks will have a **Task Definition** like either `cognoma-core-service:X`
+or `cognoma-nginx:X` which can be used to determine which are the correct
+tasks. Once you have selected the correct tasks click the **Stop** button.
+This will cause the tasks to be stopped and ECS will restart them with the
+new version of the container you have pushed. Therefore you're now done.
