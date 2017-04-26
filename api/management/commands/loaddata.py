@@ -92,4 +92,4 @@ class Command(BaseCommand):
                             #except:
                             #    print('Had an issue inserting sample', sample_id, 'mutation', entrez_gene_id)
                 print('Bulk loading mutation data...')
-                Mutation.objects.bulk_create(mutation_list)
+                Mutation.objects.bulk_create(mutation_list, batch_size=1000)
