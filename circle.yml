@@ -14,8 +14,9 @@ dependencies:
         - docker build -t $AWS_ECR_ENDPOINT.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:$CIRCLE_SHA1 .
 
 deployment:
-    prod:
+    production:
         branch: master
         commands:
+            - chmod +x ecr_push.sh ecs_deploy.sh
             - ./ecr_push.sh
             - ./ecs_deploy.sh -c $AWS_CLUSTER_NAME -i $AWS_ECR_ENDPOINT.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:$CIRCLE_SHA1
