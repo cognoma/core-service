@@ -9,13 +9,13 @@ machine:
         - postgresql
         - docker
 
-    dependencies:
-        post:
-            - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:$CIRCLE_SHA1 .
+dependencies:
+    post:
+        - docker build -t $AWS_ECR_ENDPOINT.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:$CIRCLE_SHA1 .
 
-    deployment:
-        prod:
-            branch: master
-            commands:
-                - ./ecr_push.sh
-                - ./ecs_deploy.sh -c $AWS_CLUSTER_NAME -i $AWS_ECR_ENDPOINT.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:$CIRCLE_SHA1
+deployment:
+    prod:
+        branch: master
+        commands:
+            - ./ecr_push.sh
+            - ./ecs_deploy.sh -c $AWS_CLUSTER_NAME -i $AWS_ECR_ENDPOINT.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:$CIRCLE_SHA1
