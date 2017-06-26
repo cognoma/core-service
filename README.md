@@ -108,4 +108,4 @@ The tasks will have a **Task Definition** like either `cognoma-core-service:X`
 or `cognoma-nginx:X` which can be used to determine which are the correct
 tasks. Once you have selected the correct tasks click the **Stop** button.
 This will cause the tasks to be stopped and ECS will restart them with the
-new version of the container you have pushed. Therefore you're now done.
+new version of the container you have pushed. Therefore you're now done. 
