@@ -55,6 +55,14 @@ class UserListCreate(generics.ListCreateAPIView):
     ordering_fields = ('created_at', 'updated_at')
     ordering = ('created_at',)
 
+class UserSlugListCreate(generics.ListCreateAPIView):
+    def get_queryset(self):
+        random_slug = self.kwargs['random_slug']
+        return User.objects.filter(random_slugs__contains='{'+random_slug+'}')
+
+    permission_classes = (UserUpdateSelfOnly,)
+    serializer_class   = serializers.UserSerializer
+
 class UserRetrieveUpdate(generics.RetrieveUpdateAPIView):
     permission_classes = (UserUpdateSelfOnly,)
     queryset = User.objects.all()

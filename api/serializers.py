@@ -4,16 +4,17 @@ import random
 from rest_framework import serializers, exceptions
 from expander import ExpanderSerializerMixin
 from drf_dynamic_fields import DynamicFieldsMixin
-
+from django.contrib.postgres import fields as postgresfields
 from api.models import User, Classifier, Disease, Sample, Mutation, Gene
 
 
 class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(required=False, allow_blank=True, max_length=255)
-    email = serializers.CharField(required=False, allow_blank=False, max_length=255)
-    created_at = serializers.DateTimeField(read_only=True, format='iso-8601')
-    updated_at = serializers.DateTimeField(read_only=True, format='iso-8601')
+    id           = serializers.IntegerField(read_only=True)
+    name         = serializers.CharField(required=False, allow_blank=True, max_length=255)
+    email        = serializers.CharField(required=False, allow_blank=False, max_length=255)
+    created_at   = serializers.DateTimeField(read_only=True, format='iso-8601')
+    updated_at   = serializers.DateTimeField(read_only=True, format='iso-8601')
+    random_slugs = postgresfields.ArrayField(serializers.CharField(max_length=25))
 
     def create(self, validated_data):
         ## 25 charcters to get 128bit unique random slug
@@ -45,7 +46,7 @@ class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
            del output['email']
 
         ## Only return secure random slug on create
-        if self.context['request'].method == 'POST':
+        if (auth_type == 'Bearer' and self.context['request'].method == 'GET' ):
             output['random_slugs'] = obj.random_slugs
 
         return output
