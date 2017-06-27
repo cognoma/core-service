@@ -52,7 +52,7 @@ class CognomaAuthentication(authentication.BaseAuthentication):
 
 class UserUpdateSelfOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.method != 'PUT':
+        if request.method != 'PUT' and request.method != 'PATCH':
             return True
 
         if not request.user:
