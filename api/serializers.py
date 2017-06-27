@@ -45,7 +45,7 @@ class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
               self.context['request'].user.id != obj.id))):
            del output['email']
 
-        ## Only return secure random slug on create
+        ## Only return secure random slug on authenticated GET requests
         if (auth_type == 'Bearer' and self.context['request'].method == 'GET' ):
             output['random_slugs'] = obj.random_slugs
 
