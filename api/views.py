@@ -61,6 +61,16 @@ class UserRetrieveUpdate(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.UserSerializer
     lookup_field = 'id'
 
+class UserRetrieveFromSlug(generics.RetrieveAPIView):
+    permission_classes = []
+    queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
+    lookup_field = 'random_slugs'
+
+    def get_object(self):
+        random_slug = self.kwargs['random_slug']
+        return self.queryset.get(random_slugs__contains=[random_slug])
+
 # Genes
 
 class GeneFilter(filters.FilterSet):

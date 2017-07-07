@@ -14,9 +14,11 @@ class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
     email = serializers.CharField(required=False, allow_blank=False, max_length=255)
     created_at = serializers.DateTimeField(read_only=True, format='iso-8601')
     updated_at = serializers.DateTimeField(read_only=True, format='iso-8601')
+    random_slugs = serializers.ListField(read_only=True, child=serializers.CharField(max_length=25))
+    classifier_set = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     def create(self, validated_data):
-        ## 25 charcters to get 128bit unique random slug
+        # 25 characters to get 128bit unique random slug
         slug = "".join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for n in range(25))
 
         validated_data['random_slugs'] = [slug]
@@ -44,7 +46,7 @@ class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
               self.context['request'].user.id != obj.id))):
            del output['email']
 
-        ## Only return secure random slug on create
+        # Only return secure random slug on create
         if self.context['request'].method == 'POST':
             output['random_slugs'] = obj.random_slugs
 
