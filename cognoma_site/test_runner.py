@@ -23,7 +23,8 @@ class TempMediaMixin(object):
         Delete temp storage.
         """
         super(TempMediaMixin, self).teardown_test_environment()
-        shutil.rmtree(settings.MEDIA_ROOT)
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
 
 
 class TemporaryMediaTestSuiteRunner(TempMediaMixin, DiscoverRunner):

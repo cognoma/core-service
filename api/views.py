@@ -167,7 +167,7 @@ class UserRetrieveUpdate(generics.RetrieveUpdateAPIView):
 class UserRetrieveFromSlug(generics.RetrieveAPIView):
     permission_classes = []
     queryset = User.objects.all()
-    serializer_class = serializers.UserSerializer
+    serializer_class = UserSerializer
     lookup_field = 'random_slugs'
 
     def get_object(self):
