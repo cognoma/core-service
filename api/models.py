@@ -1,12 +1,31 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.contrib.postgres import fields as postgresfields
+from django.contrib.postgres import fields as postgres_fields
+from django.core.validators import RegexValidator
+from django.utils import timezone
 
+DEFAULT_CLASSIFIER_TITLE = 'classifier-search'
 
 GENDER_CHOICES = (
     ("male", "Male"),
     ("female", "Female")
+)
+
+STATUS_CHOICES = (
+    ("queued", "Queued"),
+    ("in_progress", "In Progress"),
+    ("failed_retrying", "Failed - Retrying"),
+    ("dequeued", "Dequeued"),
+    ("failed", "Failed"),
+    ("completed", "Completed")
+)
+
+PRIORITY_CHOICES = (
+    (1, "Critical"),
+    (2, "High"),
+    (3, "Normal"),
+    (4, "Low")
 )
 
 class User(models.Model):
@@ -14,7 +33,7 @@ class User(models.Model):
         db_table = "users"
 
     # id added by default
-    random_slugs = postgresfields.ArrayField(models.CharField(max_length=25))
+    random_slugs = postgres_fields.ArrayField(models.CharField(max_length=25))
     name = models.CharField(null=True, max_length=255, blank=True)
     email = models.CharField(null=True, max_length=2048, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -45,8 +64,8 @@ class Gene(models.Model):
     description = models.CharField(max_length=256)
     chromosome = models.CharField(max_length=8, null=True)
     gene_type = models.CharField(max_length=16)
-    synonyms = postgresfields.ArrayField(models.CharField(max_length=32), null=True)
-    aliases = postgresfields.ArrayField(models.CharField(max_length=256), null=True)
+    synonyms = postgres_fields.ArrayField(models.CharField(max_length=32), null=True)
+    aliases = postgres_fields.ArrayField(models.CharField(max_length=256), null=True)
 
 class Mutation(models.Model):
     class Meta:
@@ -60,11 +79,37 @@ class Classifier(models.Model):
     class Meta:
         db_table = "classifiers"
 
+    def classifier_notebook_file_path(instance, filename):
+        # file will be uploaded to MEDIA_ROOT/notebooks/classifier_<id>.ipynb
+        return 'notebooks/classifier_{0}.ipynb'.format(instance.id)
+
     # id added by default
+    title = models.CharField( # ex "classifier-search"
+        max_length=255,
+        validators=[
+            RegexValidator(
+                regex='^[a-z0-9\-_]+$',
+                message='Classifier type can only contain lowercase alphanumeric characters, dashes, and underscores.',
+            )
+        ],
+        default=DEFAULT_CLASSIFIER_TITLE
+    )
+    name = models.CharField('optional name', null=True, max_length=255, blank=False)
+    description = models.CharField('optional description', null=True, max_length=2048, blank=False)
     genes = models.ManyToManyField(Gene)
     diseases = models.ManyToManyField(Disease)
     user = models.ForeignKey(User)
-    task_id = models.IntegerField(null=False, blank=False)
-    results = postgresfields.JSONField(null=True)
+    notebook_file = models.FileField(null=True, upload_to=classifier_notebook_file_path)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    status = models.CharField(choices=STATUS_CHOICES, max_length=17, default='queued')
+    worker_id = models.CharField(null=True, max_length=255)
+    priority = models.PositiveSmallIntegerField(choices=PRIORITY_CHOICES, default=3)
+    timeout = models.IntegerField('timeout in seconds', default=600)
+    attempts = models.IntegerField(default=0)
+    max_attempts = models.IntegerField('max number of times this job can attempt to run', default=1)
+    locked_at = models.DateTimeField(null=True)
+    started_at = models.DateTimeField(null=True)
+    completed_at = models.DateTimeField(null=True)
+    failed_at = models.DateTimeField(null=True)

@@ -19,4 +19,4 @@ deployment:
         commands:
             - chmod +x ecr_push.sh ecs_deploy.sh
             - ./ecr_push.sh
-            - ./ecs_deploy.sh -t 180 -c $AWS_CLUSTER_NAME -n $AWS_SERVICE_NAME -i $AWS_ECR_ENDPOINT.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:$CIRCLE_SHA1
+            - ./ecs_deploy.sh --timeout 180 --cluster $AWS_CLUSTER_NAME --service-name $AWS_SERVICE_NAME --image $AWS_ECR_ENDPOINT.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:$CIRCLE_SHA1

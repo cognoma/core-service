@@ -100,7 +100,7 @@ class UserTests(APITestCase):
     def test_list_users(self):
         client = APIClient()
 
-        user1_repsonse = client.post('/users', {}, format='json')
+        user1_response = client.post('/users', {}, format='json')
         user2_response = client.post('/users', {}, format='json')
 
         list_response = client.get('/users')

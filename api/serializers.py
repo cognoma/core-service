@@ -4,9 +4,13 @@ import random
 from rest_framework import serializers, exceptions
 from expander import ExpanderSerializerMixin
 from drf_dynamic_fields import DynamicFieldsMixin
+from django.conf import settings
 
-from api.models import User, Classifier, Disease, Sample, Mutation, Gene
+from api.models import User, Classifier, Disease, Sample, Mutation, Gene, PRIORITY_CHOICES, DEFAULT_CLASSIFIER_TITLE
 
+class UniqueTaskConflict(exceptions.APIException):
+    status_code = 409
+    default_detail = 'Task `unique` field conflict'
 
 class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
@@ -92,13 +96,26 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
         }
 
     id = serializers.IntegerField(read_only=True)
+    title = serializers.CharField(required=False, allow_blank=False, max_length=255)
+    name = serializers.CharField(required=False, allow_null=False, allow_blank=False, max_length=255)
+    description = serializers.CharField(required=False, allow_null=True, allow_blank=False, max_length=2048)
     genes = serializers.PrimaryKeyRelatedField(required=True, many=True, queryset=Gene.objects.all())
     diseases = serializers.PrimaryKeyRelatedField(required=False, many=True, queryset=Disease.objects.all())
     user = serializers.PrimaryKeyRelatedField(required=False, queryset=User.objects.all())
-    task_id = serializers.IntegerField(read_only=True)
-    results = serializers.JSONField(required=False, allow_null=True)
+    notebook_file = serializers.FileField(required=False, allow_empty_file=False, allow_null=True)
     created_at = serializers.DateTimeField(read_only=True, format='iso-8601')
     updated_at = serializers.DateTimeField(read_only=True, format='iso-8601')
+
+    status = serializers.CharField(read_only=True)
+    worker_id = serializers.CharField(read_only=True)
+    priority = serializers.ChoiceField(required=False, choices=PRIORITY_CHOICES, read_only=True)
+    timeout = serializers.IntegerField(required=False, read_only=True)
+    attempts = serializers.IntegerField(read_only=True)
+    max_attempts = serializers.IntegerField(required=False, read_only=True)
+    locked_at = serializers.DateTimeField(format='iso-8601', read_only=True)
+    started_at = serializers.DateTimeField(required=False, allow_null=True, format='iso-8601', input_formats=['iso-8601'])
+    completed_at = serializers.DateTimeField(required=False, allow_null=True, format='iso-8601', input_formats=['iso-8601'])
+    failed_at = serializers.DateTimeField(required=False, allow_null=True, format='iso-8601', input_formats=['iso-8601'])
 
     def create(self, validated_data):
         if self.context['request'].auth['type'] == 'JWT':
@@ -109,30 +126,49 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
         else:
             user = self.context['request'].user
 
-        classifier_input = {
-            'user': user, # force loggedin user id
-            'task_id': 234 # TODO: create task
-        }
+        classifier = Classifier()
 
-        if 'results' in validated_data:
-            classifier_input['results'] = validated_data['results']
-
-        classifier =  Classifier.objects.create(**classifier_input)
+        classifier.user = user
+        classifier.title = validated_data.get('title', DEFAULT_CLASSIFIER_TITLE)
+        classifier.name = validated_data.get('name')
+        classifier.description = validated_data.get('description')
+        classifier.save()
 
         if 'genes' in validated_data:
             for gene in validated_data['genes']:
                 classifier.genes.add(gene)
+        else:
+            raise exceptions.ValidationError({'diseases': 'At least 1 gene is required.'})
 
         if 'diseases' in validated_data:
             for disease in validated_data['diseases']:
                 classifier.diseases.add(disease)
+        else:
+            raise exceptions.ValidationError({'diseases': 'At least 1 disease is required.'})
 
+        classifier.save()
         return classifier
 
     def update(self, instance, validated_data):
-        instance.genes = validated_data.get('genes', instance.genes)
-        instance.diseases = validated_data.get('diseases', instance.diseases)
-        instance.results = validated_data.get('results', instance.results)
+        failed_at = validated_data.get('failed_at', None)
+        completed_at = validated_data.get('completed_at', None)
+
+        if failed_at is None and completed_at is not None:
+            instance.status = 'complete'
+        elif failed_at is not None and completed_at is None:
+            if instance.attempts >= instance.max_attempts:
+                instance.status = 'failed'
+            else:
+                instance.status = 'failed_retrying'
+        elif failed_at is not None and completed_at is not None:
+            raise exceptions.ValidationError('`failed_at` and `completed_at` cannot be both non-null at the same time.')
+
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.completed_at = completed_at
+        instance.failed_at = failed_at
+        instance.notebook_file = validated_data.get('notebook_file', instance.notebook_file)
+
         instance.save()
         return instance
 
@@ -148,3 +184,4 @@ class SampleSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.
     mutations = serializers.PrimaryKeyRelatedField(many=True, queryset=Mutation.objects.all())
     gender = serializers.CharField()
     age_diagnosed = serializers.IntegerField()
+
