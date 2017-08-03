@@ -114,7 +114,8 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
         classifier = Classifier()
 
         classifier.user = user
-        classifier.title = validated_data.get('title', DEFAULT_CLASSIFIER_TITLE)
+        # classifier.title = validated_data.get('title', DEFAULT_CLASSIFIER_TITLE)
+        classifier.title = DEFAULT_CLASSIFIER_TITLE
         classifier.name = validated_data.get('name')
         classifier.description = validated_data.get('description')
         classifier.save()

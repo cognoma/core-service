@@ -1,9 +1,14 @@
 from django.conf.urls import url
 from django.conf.urls.static import static
 from django.conf import settings
+from rest_framework_swagger.views import get_swagger_view
 from api import views
 
+schema_view = get_swagger_view(title='Cognoma API')
+
 urlpatterns = [
+    url(r'^$', schema_view),
+
     url(r'^classifiers/?$', views.ClassifierCreate.as_view()),
     url(r'^classifiers/queue/?$', views.PullClassifierTaskQueue.as_view()),
     url(r'^classifiers/(?P<id>[0-9]+)$', views.RetrieveClassifier.as_view()),

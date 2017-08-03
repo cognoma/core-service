@@ -28,6 +28,14 @@ The code in the repository is also mounted as a volume in the core-service conta
 
 The server should start up at http://localhost:8080/, see the [API docs](https://github.com/cognoma/core-service/blob/master/doc/api.md).
 
+## Swagger UI
+Accessing the root API endpoint (ex: http://localhost:8080/) will bring up the [Swagger UI](https://github.com/marcgibbons/django-rest-swagger) for viewing the API.
+
+**Note:** swagger will only display endpoints that you are authorized to
+view. In order to authenticate, go to the top right corner and click
+`Authorize`. Where it says `api_key`, type in `Bearer
+<your_random_slug_here>` and hit enter to authenticate for the rest of the session.
+
 ## Running tests locally
 
 Make sure the service is up first using `docker-compose up` then run:

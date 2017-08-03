@@ -43,6 +43,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'django_ses',
     'storages',
+    'rest_framework_swagger'
 ]
 
 LOCAL_APPS = [
@@ -64,6 +65,16 @@ REST_FRAMEWORK = {
         # Support HTML / web browsable renderer for interacting with API
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
 }
 
 MIDDLEWARE_CLASSES = [
