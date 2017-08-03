@@ -101,7 +101,7 @@ class ClassifierQueueTests(APITestCase):
 
         client.credentials(HTTP_AUTHORIZATION=self.token)
         response = client.get('/classifiers/queue?title=' + DEFAULT_CLASSIFIER_TITLE + '&worker_id=foo')
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
 
     def test_pull_from_queue_with_limit(self):
         client = APIClient()
@@ -261,7 +261,7 @@ class ClassifierQueueTests(APITestCase):
             upload_response = client.post(path,
                                           data={'notebook_file': notebook_file},
                                           format='multipart')
-        self.assertEqual(upload_response.status_code, 401)
+        self.assertEqual(upload_response.status_code, 403)
 
     def test_upload_notebook_from_internal_service(self):
         client = APIClient()

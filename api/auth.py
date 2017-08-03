@@ -50,24 +50,25 @@ class CognomaAuthentication(authentication.BaseAuthentication):
     def authenticate_header(self, request):
         return "HTTP 401 Unauthorized"
 
-class UserUpdateSelfOnly(permissions.BasePermission):
+class UserAccessSelfOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.method != 'PUT' and request.method != 'PATCH':
-            return True
-
         if not request.user:
             raise exceptions.NotAuthenticated()
 
-        if request.auth['type'] == 'JWT' or request.user.id == obj.id:
-            return True
-
-        return False
+        return request.auth['type'] == 'JWT' or request.user.id == obj.id
 
 class IsAuthenticatedOrReadOnlyPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
 
+        if not request.user:
+            raise exceptions.NotAuthenticated()
+        else:
+            return True
+
+class ClassifierCreatePermission(permissions.BasePermission):
+    def has_permission(self, request, view):
         if not request.user:
             raise exceptions.NotAuthenticated()
         else:
@@ -84,9 +85,6 @@ class ClassifierRetrievePermission(permissions.BasePermission):
 
 class MLWorkerOnlyPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        if not request.user:
+        if not request.auth:
             raise exceptions.NotAuthenticated()
-        elif request.auth['type'] == 'JWT' and request.auth['service'] == 'core':
-            return True
-        else:
-            raise exceptions.NotAuthenticated()
+        return request.auth['type'] == 'JWT' and request.auth['service'] == 'core'

@@ -6,8 +6,9 @@ from rest_framework import filters, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound, ParseError
+from rest_framework.pagination import LimitOffsetPagination
 
-from api.auth import UserUpdateSelfOnly, IsAuthenticatedOrReadOnlyPermission, ClassifierRetrievePermission, MLWorkerOnlyPermission
+from api.auth import UserAccessSelfOnly, ClassifierCreatePermission, ClassifierRetrievePermission, MLWorkerOnlyPermission
 from api.models import User, Classifier, Disease, Sample, Mutation, Gene
 from api.serializers import ClassifierSerializer, UserSerializer, GeneSerializer, DiseaseSerializer, MutationSerializer, SampleSerializer
 from api import queue
@@ -25,14 +26,9 @@ class ClassifierFilter(filters.FilterSet):
         model = Classifier
         fields = ['user', 'created_at', 'updated_at']
 
-class ClassifierListCreate(generics.ListCreateAPIView):
-    permission_classes = (IsAuthenticatedOrReadOnlyPermission,)
-    queryset = Classifier.objects.all()
+class ClassifierCreate(generics.CreateAPIView):
+    permission_classes = (ClassifierCreatePermission,)
     serializer_class = ClassifierSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = ClassifierFilter
-    ordering_fields = ('user', 'created_at', 'updated_at')
-    ordering = ('created_at',)
 
 class RetrieveClassifier(generics.RetrieveAPIView):
     permission_classes = (ClassifierRetrievePermission,)
@@ -56,14 +52,16 @@ class UploadCompletedNotebookToClassifier(APIView):
                                           }, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
-        email_message = 'Cognoma has completed processing your classifier. ' \
-                        'Visit {notebook_link} to download your notebook.'.format(notebook_link=classifier.notebook_file.url)
-        send_mail(subject='Cognoma Classifier Processing Complete',
+        download_link = classifier.notebook_file.url
+        nbviewer_link = 'https://nbviewer.jupyter.org/urls/' + download_link.replace('https://', '')
+        email_message = 'Cognoma has completed processing your classifier.\n' + \
+                        'Visit {notebook_link} to download your notebook.\n'.format(notebook_link=download_link) + \
+                        'Visit {nbviewer_link} to view your notebook online.'.format(nbviewer_link=nbviewer_link)
+        send_mail(subject='Cognoma Classifier {id} Processing Complete'.format(id=classifier.id),
                   message=email_message,
                   from_email=settings.FROM_EMAIL,
                   recipient_list=[classifier.user.email],
-                  fail_silently=False)
+                  fail_silently=True)
         return Response(serializer.data, status=201)
 
 class PullClassifierTaskQueue(APIView):
@@ -126,16 +124,25 @@ class FailClassifierTask(APIView):
 
     def post(self, request, id):
         try:
-            task = Classifier.objects.get(id=id)
+            classifier = Classifier.objects.get(id=id)
         except Classifier.DoesNotExist:
             raise NotFound('Task not found')
-        classifier = ClassifierSerializer(task, data={
+        serializer = ClassifierSerializer(classifier, data={
             'failed_at': datetime.datetime.utcnow()
         }, partial=True)
-        classifier.is_valid(raise_exception=True)
-        classifier.save()
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        return Response(data=classifier.data, status=200)
+        if classifier.attempts >= classifier.max_attempts:
+            email_message = 'An error has occurred and your classifier could not be processed.\n' + \
+                            'Support is available at https://github.com/cognoma.'
+            send_mail(subject='Cognoma Classifier {id} Processing Failure'.format(id=classifier.id),
+                      message=email_message,
+                      from_email=settings.FROM_EMAIL,
+                      recipient_list=[classifier.user.email],
+                      fail_silently=True)
+
+        return Response(data=serializer.data, status=200)
 
 # User
 
@@ -150,16 +157,12 @@ class UserFilter(filters.FilterSet):
         model = User
         fields = ['email', 'created_at', 'updated_at']
 
-class UserListCreate(generics.ListCreateAPIView):
-    queryset = User.objects.all()
+class UserCreate(generics.CreateAPIView):
+    permission_classes = []
     serializer_class = UserSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = UserFilter
-    ordering_fields = ('created_at', 'updated_at')
-    ordering = ('created_at',)
 
 class UserRetrieveUpdate(generics.RetrieveUpdateAPIView):
-    permission_classes = (UserUpdateSelfOnly,)
+    permission_classes = (UserAccessSelfOnly,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'id'
@@ -181,11 +184,16 @@ class GeneFilter(filters.FilterSet):
         model = Gene
         fields = ['entrez_gene_id', 'symbol', 'chromosome', 'gene_type']
 
+class GenePagination(LimitOffsetPagination):
+    default_limit = 10
+    max_limit = 10
+
 class GeneList(generics.ListAPIView):
     queryset = Gene.objects.all()
     serializer_class = GeneSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = GeneFilter
+    pagination_class = GenePagination
     ordering_fields = ('entrez_gene_id', 'symbol', 'chromosome')
     ordering = ('entrez_gene_id',)
 

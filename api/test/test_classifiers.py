@@ -188,14 +188,7 @@ class ClassifierTests(APITestCase):
 
         list_response = client.get('/classifiers')
 
-        self.assertEqual(list_response.status_code, 200)
-        self.assertEqual(list(list_response.data.keys()), ['count',
-                                                           'next',
-                                                           'previous',
-                                                           'results'])
-        self.assertEqual(len(list_response.data['results']), 2)
-        self.assertEqual(list(list_response.data['results'][0].keys()), classifier_keys)
-        self.assertEqual(list(list_response.data['results'][1].keys()), classifier_keys)
+        self.assertEqual(list_response.status_code, 401)
 
     def test_get_classifier(self):
         client = APIClient()
@@ -229,28 +222,24 @@ class ClassifierTests(APITestCase):
         self.assertEqual(classifier1_response.status_code, 201)
         self.assertEqual(classifier2_response.status_code, 201)
 
-        client = APIClient() # clear token
+        get_1_response = client.get('/classifiers/{id}?expand=user,genes,diseases'.format(id=classifier1_response.data['id']))
+        get_2_response = client.get('/classifiers/{id}?expand=user,genes,diseases'.format(id=classifier2_response.data['id']))
 
-        list_response = client.get('/classifiers?expand=user,genes,diseases')
+        self.assertEqual(get_1_response.status_code, 200)
+        self.assertEqual(get_1_response.status_code, 200)
 
-        self.assertEqual(list_response.status_code, 200)
-        self.assertEqual(list(list_response.data.keys()), ['count',
-                                                           'next',
-                                                           'previous',
-                                                           'results'])
-        self.assertEqual(len(list_response.data['results']), 2)
-        self.assertEqual(list(list_response.data['results'][0].keys()), classifier_keys)
-        self.assertEqual(list(list_response.data['results'][1].keys()), classifier_keys)
+        self.assertEqual(list(get_1_response.data.keys()), classifier_keys)
+        self.assertEqual(list(get_2_response.data.keys()), classifier_keys)
 
-        self.assertTrue(isinstance(list_response.data['results'][0]['user'], dict))
-        self.assertTrue(isinstance(list_response.data['results'][1]['user'], dict))
+        self.assertTrue(isinstance(get_1_response.data['user'], dict))
+        self.assertTrue(isinstance(get_2_response.data['user'], dict))
 
-        self.assertTrue(isinstance(list_response.data['results'][0]['genes'][0], dict))
-        self.assertTrue(isinstance(list_response.data['results'][0]['genes'][1], dict))
-        self.assertTrue(isinstance(list_response.data['results'][0]['diseases'][0], dict))
-        self.assertTrue(isinstance(list_response.data['results'][0]['diseases'][1], dict))
+        self.assertTrue(isinstance(get_1_response.data['genes'][0], dict))
+        self.assertTrue(isinstance(get_1_response.data['genes'][1], dict))
+        self.assertTrue(isinstance(get_1_response.data['diseases'][0], dict))
+        self.assertTrue(isinstance(get_1_response.data['diseases'][1], dict))
 
-        self.assertTrue(isinstance(list_response.data['results'][1]['genes'][0], dict))
-        self.assertTrue(isinstance(list_response.data['results'][1]['genes'][1], dict))
-        self.assertTrue(isinstance(list_response.data['results'][1]['diseases'][0], dict))
-        self.assertTrue(isinstance(list_response.data['results'][1]['diseases'][1], dict))
+        self.assertTrue(isinstance(get_2_response.data['genes'][0], dict))
+        self.assertTrue(isinstance(get_2_response.data['genes'][1], dict))
+        self.assertTrue(isinstance(get_2_response.data['diseases'][0], dict))
+        self.assertTrue(isinstance(get_2_response.data['diseases'][1], dict))
