@@ -97,6 +97,8 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
     timeout = serializers.IntegerField(required=False, read_only=True)
     attempts = serializers.IntegerField(read_only=True)
     max_attempts = serializers.IntegerField(required=False, read_only=True)
+    fail_reason = serializers.CharField(required=False, allow_blank=False, allow_null=False, max_length=255)
+    fail_message = serializers.CharField(required=False, allow_blank=False, allow_null=False, max_length=1000)
     locked_at = serializers.DateTimeField(format='iso-8601', read_only=True)
     started_at = serializers.DateTimeField(required=False, allow_null=True, format='iso-8601', input_formats=['iso-8601'])
     completed_at = serializers.DateTimeField(required=False, allow_null=True, format='iso-8601', input_formats=['iso-8601'])
@@ -151,6 +153,8 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
 
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get('description', instance.description)
+        instance.fail_reason = validated_data.get('fail_reason', instance.fail_reason)
+        instance.fail_message = validated_data.get('fail_message', instance.fail_message)
         instance.completed_at = completed_at
         instance.failed_at = failed_at
         instance.notebook_file = validated_data.get('notebook_file', instance.notebook_file)

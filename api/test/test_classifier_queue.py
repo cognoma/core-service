@@ -9,6 +9,8 @@ from api.test.test_classifiers import classifier_keys
 from api.models import Classifier, Gene, Disease, DEFAULT_CLASSIFIER_TITLE
 
 number_of_classifiers_created_initially = 1
+error_reason = 'default_error'
+error_message = 'Classifier processing failed.'
 
 class ClassifierQueueTests(APITestCase):
 
@@ -182,7 +184,10 @@ class ClassifierQueueTests(APITestCase):
         classifier = classifier_queue_response.data[0]
 
         if is_fail:
-            update_response = client.post('/classifiers/{id}/fail/'.format(id=classifier['id']), classifier, format='json')
+            update_response = client.post('/classifiers/{id}/fail/'.format(id=classifier['id']), data={
+                'fail_reason': error_reason,
+                'fail_message': error_message
+            }, format='json')
             self.assertEqual(update_response.status_code, 200)
         else:
             with open(os.path.join(settings.BASE_DIR, 'api/test/fixtures/test_notebook.ipynb'), mode='rb') as notebook_file:
@@ -209,6 +214,8 @@ class ClassifierQueueTests(APITestCase):
         update_response = self.pull_and_update(client, True)
 
         self.assertEqual(update_response.data['status'], 'failed')
+        self.assertEqual(update_response.data['fail_reason'], error_reason)
+        self.assertEqual(update_response.data['fail_message'], error_message)
 
     def test_pull_retry_fail(self):
         client = APIClient()

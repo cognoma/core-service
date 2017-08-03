@@ -128,13 +128,16 @@ class FailClassifierTask(APIView):
         except Classifier.DoesNotExist:
             raise NotFound('Task not found')
         serializer = ClassifierSerializer(classifier, data={
-            'failed_at': datetime.datetime.utcnow()
+            'failed_at': datetime.datetime.utcnow(),
+            'fail_reason': request.data['fail_reason'],
+            'fail_message': request.data['fail_message']
         }, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         if classifier.attempts >= classifier.max_attempts:
             email_message = 'An error has occurred and your classifier could not be processed.\n' + \
+                            'Error: ' + classifier.fail_message + '\n' + \
                             'Support is available at https://github.com/cognoma.'
             send_mail(subject='Cognoma Classifier {id} Processing Failure'.format(id=classifier.id),
                       message=email_message,

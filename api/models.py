@@ -109,6 +109,8 @@ class Classifier(models.Model):
     timeout = models.IntegerField('timeout in seconds', default=600)
     attempts = models.IntegerField(default=0)
     max_attempts = models.IntegerField('max number of times this job can attempt to run', default=1)
+    fail_reason = models.CharField(null=True, max_length=255)
+    fail_message = models.CharField(null=True, max_length=1000)
     locked_at = models.DateTimeField(null=True)
     started_at = models.DateTimeField(null=True)
     completed_at = models.DateTimeField(null=True)
