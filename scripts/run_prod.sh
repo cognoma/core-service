@@ -1,5 +1,5 @@
 #!/bin/bash -x
-python manage.py collectstatic
+python manage.py collectstatic --no-input
 python manage.py migrate -v3 --no-input
 
 # Application is configured to run under Supervisord, which in turn monitors
