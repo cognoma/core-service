@@ -30,6 +30,9 @@ TESTING_MODE = 'test' in sys.argv
 
 ALLOWED_HOSTS = [os.getenv('DJANGO_HOST', '*')]
 
+# Enables Swagger to correctly set base URL in production to https://api.cognoma.org
+USE_X_FORWARDED_HOST = not DEBUG
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_HOST', 'api.cognoma.org') if not DEBUG else None
 
 # Application definition
 
