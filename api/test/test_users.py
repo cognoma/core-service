@@ -30,7 +30,7 @@ class UserTests(APITestCase):
 
         client.credentials(HTTP_AUTHORIZATION=token)
 
-        update_response = client.put('/users/' + str(create_response.data['id']),
+        update_response = client.put('/users/id/' + str(create_response.data['id']),
                                      {'email': 'foo@yahoo.com'},
                                      format='json')
 
@@ -43,7 +43,7 @@ class UserTests(APITestCase):
 
         create_repsonse = client.post('/users', {}, format='json')
 
-        update_response = client.put('/users/' + str(create_repsonse.data['id']),
+        update_response = client.put('/users/id/' + str(create_repsonse.data['id']),
                                      {'email': 'foo@yahoo.com'},
                                      format='json')
 
@@ -59,7 +59,7 @@ class UserTests(APITestCase):
 
         client.credentials(HTTP_AUTHORIZATION=user2_token)
 
-        update_response = client.put('/users/' + str(user1_repsonse.data['id']),
+        update_response = client.put('/users/id/' + str(user1_repsonse.data['id']),
                                      {'email': 'foo@yahoo.com'},
                                      format='json')
 
@@ -99,11 +99,11 @@ class UserTests(APITestCase):
 
         self.assertEqual(user_create_response.status_code, 201)
 
-        user_id_response = client.get('/users/' + str(user_create_response.data['id']))
+        user_id_response = client.get('/users/id/' + str(user_create_response.data['id']))
 
         self.assertEqual(user_id_response.status_code, 401)
 
-        user_slug_response = client.get('/users/' + str(user_create_response.data['random_slugs'][0]))
+        user_slug_response = client.get('/users/slug/' + str(user_create_response.data['random_slugs'][0]))
 
         self.assertEqual(user_slug_response.status_code, 200)
         self.assertEqual(list(user_slug_response.data.keys()), self.user_keys)
@@ -119,12 +119,12 @@ class UserTests(APITestCase):
 
         client.credentials(HTTP_AUTHORIZATION=token)
 
-        user_id_response = client.get('/users/' + str(user_create_response.data['id']))
+        user_id_response = client.get('/users/id/' + str(user_create_response.data['id']))
 
         self.assertEqual(user_id_response.status_code, 200)
         self.assertEqual(list(user_id_response.data.keys()), self.user_keys)
 
-        user_slug_response = client.get('/users/' + str(user_create_response.data['random_slugs'][0]))
+        user_slug_response = client.get('/users/slug/' + str(user_create_response.data['random_slugs'][0]))
 
         self.assertEqual(user_slug_response.status_code, 200)
         self.assertEqual(list(user_slug_response.data.keys()), self.user_keys)

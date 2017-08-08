@@ -178,7 +178,10 @@ class UserRetrieveFromSlug(generics.RetrieveAPIView):
 
     def get_object(self):
         random_slug = self.kwargs['random_slug']
-        return self.queryset.get(random_slugs__contains=[random_slug])
+        try:
+            return self.queryset.get(random_slugs__contains=[random_slug])
+        except User.DoesNotExist:
+            raise NotFound("No user exists with random slug of {slug}.".format(slug=random_slug))
 
 # Genes
 
