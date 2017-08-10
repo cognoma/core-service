@@ -164,13 +164,7 @@ class UserCreate(generics.CreateAPIView):
     permission_classes = []
     serializer_class = UserSerializer
 
-class UserRetrieveUpdate(generics.RetrieveUpdateAPIView):
-    permission_classes = (UserAccessSelfOnly,)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    lookup_field = 'id'
-
-class UserRetrieveFromSlug(generics.RetrieveAPIView):
+class UserRetrieveUpdateFromSlug(generics.RetrieveUpdateAPIView):
     permission_classes = []
     queryset = User.objects.all()
     serializer_class = UserSerializer

@@ -17,8 +17,7 @@ urlpatterns = [
     url(r'^classifiers/(?P<id>[0-9]+)/fail/?$', views.FailClassifierTask.as_view()),
 
     url(r'^users/?$', views.UserCreate.as_view()),
-    url(r'^users/id/(?P<id>[0-9]+)/?$', views.UserRetrieveUpdate.as_view()),
-    url(r'^users/slug/(?P<random_slug>.+)$', views.UserRetrieveFromSlug.as_view()),
+    url(r'^users/(?P<random_slug>.+)$', views.UserRetrieveUpdateFromSlug.as_view()),
 
     # url(r'^genes/?$', views.GeneList.as_view()),
     # url(r'^genes/(?P<entrez_gene_id>[0-9]+)$', views.GeneRetrieve.as_view()),
