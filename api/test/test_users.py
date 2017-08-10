@@ -30,57 +30,13 @@ class UserTests(APITestCase):
 
         client.credentials(HTTP_AUTHORIZATION=token)
 
-        update_response = client.put('/users/' + str(create_response.data['id']),
+        update_response = client.put('/users/' + str(create_response.data['random_slugs'][0]),
                                      {'email': 'foo@yahoo.com'},
                                      format='json')
 
         self.assertEqual(update_response.status_code, 200)
         self.assertEqual(update_response.data['email'], 'foo@yahoo.com')
         self.assertEqual(list(update_response.data.keys()), self.user_keys)
-
-    def test_user_update_must_be_logged_in(self):
-        client = APIClient()
-
-        create_repsonse = client.post('/users', {}, format='json')
-
-        update_response = client.put('/users/' + str(create_repsonse.data['id']),
-                                     {'email': 'foo@yahoo.com'},
-                                     format='json')
-
-        self.assertEqual(update_response.status_code, 401)
-
-    def test_cannot_update_other_user(self):
-        client = APIClient()
-
-        user1_repsonse = client.post('/users', {}, format='json')
-        user2_response = client.post('/users', {}, format='json')
-
-        user2_token = 'Bearer ' + user2_response.data['random_slugs'][0]
-
-        client.credentials(HTTP_AUTHORIZATION=user2_token)
-
-        update_response = client.put('/users/' + str(user1_repsonse.data['id']),
-                                     {'email': 'foo@yahoo.com'},
-                                     format='json')
-
-        self.assertEqual(update_response.status_code, 403)
-
-    # def test_update_from_internal_service(self):
-    #     client = APIClient()
-
-    #     create_response = client.post('/users', {}, format='json')
-
-    #     self.assertEqual(create_response.status_code, 201)
-
-    #     client.credentials(HTTP_AUTHORIZATION=self.service_token)
-
-    #     update_response = client.put('/users/' + str(create_response.data['id']),
-    #                                  {'email': 'foo@yahoo.com'},
-    #                                  format='json')
-
-    #     self.assertEqual(update_response.status_code, 200)
-    #     self.assertEqual(update_response.data['email'], 'foo@yahoo.com')
-    #     self.assertEqual(list(update_response.data.keys()), self.user_update_get_self_keys)
 
     def test_list_users(self):
         client = APIClient()
@@ -99,10 +55,6 @@ class UserTests(APITestCase):
 
         self.assertEqual(user_create_response.status_code, 201)
 
-        user_id_response = client.get('/users/' + str(user_create_response.data['id']))
-
-        self.assertEqual(user_id_response.status_code, 401)
-
         user_slug_response = client.get('/users/' + str(user_create_response.data['random_slugs'][0]))
 
         self.assertEqual(user_slug_response.status_code, 200)
@@ -119,7 +71,7 @@ class UserTests(APITestCase):
 
         client.credentials(HTTP_AUTHORIZATION=token)
 
-        user_id_response = client.get('/users/' + str(user_create_response.data['id']))
+        user_id_response = client.get('/users/' + str(user_create_response.data['random_slugs'][0]))
 
         self.assertEqual(user_id_response.status_code, 200)
         self.assertEqual(list(user_id_response.data.keys()), self.user_keys)
