@@ -245,6 +245,7 @@ class MutationRetrieve(generics.RetrieveAPIView):
 # Samples
 
 # via https://github.com/carltongibson/django-filter/issues/137#issuecomment-38158832
+# Courtesy of @miserlou
 class ListFilter(django_filters.Filter):
     def filter(self, qs, value):
         value_list = value.split(u',')
