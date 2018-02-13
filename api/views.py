@@ -244,13 +244,21 @@ class MutationRetrieve(generics.RetrieveAPIView):
 
 # Samples
 
+# via https://github.com/carltongibson/django-filter/issues/137#issuecomment-38158832
+# Courtesy of @miserlou
+class ListFilter(django_filters.Filter):
+    def filter(self, qs, value):
+        value_list = value.split(u',')
+        return super(ListFilter, self).filter(qs, django_filters.fields.Lookup(value_list, 'in'))
+
 class SampleFilter(filters.FilterSet):
     age_diagnosed__gte = django_filters.IsoDateTimeFilter(name='age_diagnosed', lookup_expr='gte')
     age_diagnosed__lte = django_filters.IsoDateTimeFilter(name='age_diagnosed', lookup_expr='lte')
+    all_mutations = ListFilter(name='mutations__gene')
 
     class Meta:
         model = Sample
-        fields = ['sample_id', 'disease', 'gender', 'age_diagnosed', 'mutations__gene', 'mutations__gene__entrez_gene_id']
+        fields = ['sample_id', 'disease', 'gender', 'age_diagnosed', 'all_mutations', 'mutations__gene', 'mutations__gene__entrez_gene_id']
 
 class SampleList(generics.ListAPIView):
     queryset = Sample.objects.all()
