@@ -48,7 +48,7 @@ class ClassifierCreate(generics.CreateAPIView, mixins.CreateModelMixin):
         mailchimp_api_key = os.getenv("MAILCHIMP_API_KEY")
         try:
             should_subscribe = self.request.data["subscribe"]
-            if mailchimp_api_key is not None and should_subscribe == 'True':
+            if mailchimp_api_key is not None and should_subscribe == True:
                 self.add_user_to_mailchimp_list(self.request.user.email, mailchimp_api_key)
         except KeyError:
             pass
