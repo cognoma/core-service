@@ -40,8 +40,6 @@ class ClassifierCreate(generics.CreateAPIView, mixins.CreateModelMixin):
         requests.post(MAILCHIMP_LIST_URL,
             json={"email_address": email_address,
                   "status": "subscribed"},
-            # If we can't get this from the environment,
-            # return 500 so we know something is broken.
             auth=("anystring", mailchimp_api_key))
 
     def perform_create(self, serializer):
