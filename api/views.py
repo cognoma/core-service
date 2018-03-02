@@ -1,8 +1,10 @@
+import os
 import datetime
+import requests
 from django.core.mail import send_mail
 from django.conf import settings
 import django_filters
-from rest_framework import filters, generics
+from rest_framework import filters, generics, mixins
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound, ParseError
@@ -12,6 +14,10 @@ from api.auth import UserAccessSelfOnly, ClassifierCreatePermission, ClassifierR
 from api.models import User, Classifier, Disease, Sample, Mutation, Gene
 from api.serializers import ClassifierSerializer, UserSerializer, GeneSerializer, DiseaseSerializer, MutationSerializer, SampleSerializer
 from api import queue
+
+# This URL including the list ID is hardcoded,
+# but we don't plan on changing it any time soon.
+MAILCHIMP_LIST_URL = "https://us14.api.mailchimp.com/3.0/lists/074bca87ce/members"
 
 # Classifier
 
@@ -26,9 +32,26 @@ class ClassifierFilter(filters.FilterSet):
         model = Classifier
         fields = ['user', 'created_at', 'updated_at']
 
-class ClassifierCreate(generics.CreateAPIView):
+class ClassifierCreate(generics.CreateAPIView, mixins.CreateModelMixin):
     permission_classes = (ClassifierCreatePermission,)
     serializer_class = ClassifierSerializer
+
+    def add_user_to_mailchimp_list(self, email_address, mailchimp_api_key):
+        requests.post(MAILCHIMP_LIST_URL,
+            json={"email_address": email_address,
+                  "status": "subscribed"},
+            auth=("anystring", mailchimp_api_key))
+
+    def perform_create(self, serializer):
+        mailchimp_api_key = os.getenv("MAILCHIMP_API_KEY")
+        try:
+            should_subscribe = self.request.data["subscribe"]
+            if mailchimp_api_key is not None and should_subscribe == True:
+                self.add_user_to_mailchimp_list(self.request.user.email, mailchimp_api_key)
+        except KeyError:
+            pass
+
+        serializer.save()
 
 class RetrieveClassifier(generics.RetrieveAPIView):
     permission_classes = (ClassifierRetrievePermission,)
