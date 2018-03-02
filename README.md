@@ -80,7 +80,7 @@ aws ecr get-login --region us-east-1
 ```
 and then run the output of that command. It will look something like:
 ```sh
-docker login -u AWS -p <A_GIANT_HASH> -e none https://934349674827.dkr.ecr.us-east-1.amazonaws.com
+docker login -u AWS -p <A_GIANT_HASH> -e none https://589864003899.dkr.ecr.us-east-1.amazonaws.com
 ```
 
 ### Building, Tagging, and Pushing the Container
@@ -94,8 +94,8 @@ You will probably be deploying only the core-service unless you have modified
 Run these commands:
 ```
 docker build --tag cognoma-core-service .
-docker tag cognoma-core-service:latest 934349674827.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:latest
-docker push 934349674827.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:latest
+docker tag cognoma-core-service:latest 589864003899.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:latest
+docker push 589864003899.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:latest
 ```
 
 #### Nginx Container
@@ -103,8 +103,8 @@ docker push 934349674827.dkr.ecr.us-east-1.amazonaws.com/cognoma-core-service:la
 Run these commands:
 ```
 docker build --tag cognoma-nginx --file config/prod/Dockerfile_nginx .
-docker tag cognoma-nginx:latest 934349674827.dkr.ecr.us-east-1.amazonaws.com/cognoma-nginx:latest
-docker push 934349674827.dkr.ecr.us-east-1.amazonaws.com/cognoma-nginx:latest
+docker tag cognoma-nginx:latest 589864003899.dkr.ecr.us-east-1.amazonaws.com/cognoma-nginx:latest
+docker push 589864003899.dkr.ecr.us-east-1.amazonaws.com/cognoma-nginx:latest
 ```
 
 ### Restarting the ECS Task
