@@ -277,11 +277,11 @@ class ListFilter(django_filters.Filter):
 class SampleFilter(filters.FilterSet):
     age_diagnosed__gte = django_filters.IsoDateTimeFilter(name='age_diagnosed', lookup_expr='gte')
     age_diagnosed__lte = django_filters.IsoDateTimeFilter(name='age_diagnosed', lookup_expr='lte')
-    all_mutations = ListFilter(name='mutations__gene')
+    any_mutations = ListFilter(name='mutations__gene')  # Return union
 
     class Meta:
         model = Sample
-        fields = ['sample_id', 'disease', 'gender', 'age_diagnosed', 'all_mutations', 'mutations__gene', 'mutations__gene__entrez_gene_id']
+        fields = ['sample_id', 'disease', 'gender', 'age_diagnosed', 'any_mutations', 'mutations__gene', 'mutations__gene__entrez_gene_id']
 
 class SampleList(generics.ListAPIView):
     queryset = Sample.objects.all()
