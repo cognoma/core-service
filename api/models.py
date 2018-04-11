@@ -61,11 +61,11 @@ class Gene(models.Model):
 
     entrez_gene_id = models.IntegerField(primary_key=True)
     symbol = models.CharField(max_length=32)
-    description = models.CharField(max_length=256)
+    description = models.TextField()
     chromosome = models.CharField(max_length=8, null=True)
     gene_type = models.CharField(max_length=16)
     synonyms = postgres_fields.ArrayField(models.CharField(max_length=32), null=True)
-    aliases = postgres_fields.ArrayField(models.CharField(max_length=256), null=True)
+    aliases = postgres_fields.ArrayField(models.TextField(), null=True)
 
 class Mutation(models.Model):
     class Meta:
