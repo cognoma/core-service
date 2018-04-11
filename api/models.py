@@ -60,11 +60,11 @@ class Gene(models.Model):
         db_table = "cognoma_genes"
 
     entrez_gene_id = models.IntegerField(primary_key=True)
-    symbol = models.CharField(max_length=32)
+    symbol = models.TextField()
     description = models.TextField()
-    chromosome = models.CharField(max_length=8, null=True)
-    gene_type = models.CharField(max_length=16)
-    synonyms = postgres_fields.ArrayField(models.CharField(max_length=32), null=True)
+    chromosome = models.TextField(null=True)
+    gene_type = models.TextField()
+    synonyms = postgres_fields.ArrayField(models.TextField(), null=True)
     aliases = postgres_fields.ArrayField(models.TextField(), null=True)
 
 class Mutation(models.Model):
