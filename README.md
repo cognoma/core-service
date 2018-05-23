@@ -126,16 +126,7 @@ Update these hashes to the hash of the data that you want to update to.
 Once you've done so you should redploy the core-service.
 Once the core-service has been redeployed you should ssh onto the EC2 instance next you should run `docker ps` to get a list of containers running on that instance.
 Find the name for the core-service container and run `docker exec -it <that_name> /bin/bash`.
-Once you're in the container run `rm data/*` to make sure that the old data is cleared out.
-Next, empty the tables you're trying to update by first running `python3 manage.py shell` and then within that python shell:
-```
-Disease.objects.all().delete()
-Gene.objects.all().delete()
-Sample.objects.all().delete()
-Mutation.objects.all().delete()
-```
-
-Finally, exit that python shell and within the docker container shell you should still be run:
+Within that shell run the following commands:
 ```
 python3 manage.py acquiredata
 python3 manage.py loaddata

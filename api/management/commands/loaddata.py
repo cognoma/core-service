@@ -18,6 +18,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        # First clear out all the existing data.
+        Disease.objects.all().delete()
+        Gene.objects.all().delete()
+        Sample.objects.all().delete()
+        Mutation.objects.all().delete()
+
         # Diseases
         if Disease.objects.count() == 0:
             print('Loading diseases table...')
