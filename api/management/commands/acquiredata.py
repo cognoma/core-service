@@ -5,11 +5,9 @@ from urllib.request import urlretrieve
 from django.core.management.base import BaseCommand
 
 COMMIT_HASH = 'da832c5edc1ca4d3f665b038d15b19fced724f4c'
-REPO_URL_TEMPLATE = 'https://github.com/cognoma/cancer-data/raw/{commit_hash}/{directory}/{filename}'
-
 # Genes have their own repo
 GENES_COMMIT_HASH = "ad9631bb4e77e2cdc5413b0d77cb8f7e93fc5bee"
-
+REPO_URL_TEMPLATE = 'https://github.com/cognoma/cancer-data/raw/{commit_hash}/{directory}/{filename}'
 
 class Command(BaseCommand):
 
